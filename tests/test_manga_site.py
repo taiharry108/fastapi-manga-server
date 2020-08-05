@@ -1,6 +1,5 @@
 from core.manga_site import MangaSite
-from core.manga import Manga
-from .test_manga import get_sample_manga
+from core.manga_site_enum import MangaSiteEnum
 import unittest
 
 
@@ -22,7 +21,7 @@ class TestMangaSite(unittest.TestCase):
 
         manga_name = "Manga Name"
         manga_url = "Manga Url"
-        manga = m_site.get_manga(manga_name, manga_url)
+        manga = m_site.get_manga(MangaSiteEnum.ManHuaRen, manga_name, manga_url)
 
         self.assertEqual(manga.name, manga_name)
         self.assertEqual(manga.url, manga_url)

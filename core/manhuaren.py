@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, AsyncIterable, Tuple
 from .manga_site import MangaSite
+from .manga_site_enum import MangaSiteEnum
 from .manga import Manga, MangaIndexTypeEnum
 import re
 import string
@@ -56,6 +57,7 @@ class ManHuaRen(MangaSite):
         super(ManHuaRen, self).__init__(
             '漫畫人', 'https://www.manhuaren.com/'
         )
+        self.site = MangaSiteEnum.ManHuaRen
 
     async def search_manga(self, keyword) -> List[Manga]:
 
@@ -64,7 +66,7 @@ class ManHuaRen(MangaSite):
             url = div.find('a').get('href')
             if not url.startswith('http'):
                 url = self.url + url.lstrip('/')
-            manga = self.get_manga(manga_name=name, manga_url=url)
+            manga = self.get_manga(self.site, name, url)
             return manga
 
         search_url = f'{self.url}search?title={keyword}&language=1'
@@ -84,6 +86,11 @@ class ManHuaRen(MangaSite):
                 type_ = MangaIndexTypeEnum.MISC
             return type_
 
+        manga = self.get_manga(self.site, None, page)
+
+        if manga is not None:
+            return manga
+
         soup = await self.downloader.get_soup(page)
 
         name = soup.find('p', class_='detail-main-info-title').text
@@ -97,7 +104,7 @@ class ManHuaRen(MangaSite):
             if 'titleSelect' in onclick:
                 id_dict[a.text] = onclick.split("'")[3]
 
-        manga = self.get_manga(manga_name=name, manga_url=page)
+        manga = self.get_manga(self.site, name, page)
 
         for idx_type, id_v in id_dict.items():
             ul = soup.find('ul', {'id': id_v})
@@ -109,6 +116,7 @@ class ManHuaRen(MangaSite):
                 title = a.text
                 manga.add_chapter(m_type=m_type, title=title, page_url=url)
 
+        manga.retreived_idx_page()
         # manga.set_meta_data(self.get_meta_data(soup))
         return manga
 
@@ -133,3 +141,8 @@ class ManHuaRen(MangaSite):
                 pages = eval(match2.group(1))
                 return pages
         return []
+
+    async def download_chapter(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> AsyncIterable[Tuple[int, bytes]]:
+        img_urls = await self.get_page_urls(manga, m_type, idx)
+        async for img_dict in self.downloader.get_images(img_urls):
+            yield img_dict["idx"], img_dict["img"]

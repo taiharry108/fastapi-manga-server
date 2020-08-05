@@ -44,6 +44,4 @@ class TestManga(unittest.TestCase):
         chapter = manga.get_chapter(MangaIndexTypeEnum.CHAPTER, 0)
         self.assertEqual(chapter.title, self.chapter_title)
         self.assertEqual(chapter.page_url, self.chapter_page_url)
-
-
-        
+    

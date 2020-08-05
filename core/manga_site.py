@@ -1,20 +1,19 @@
-from typing import List
+from typing import List, Union
 from .manga import Manga, MangaIndexTypeEnum
 from .downloader import Downloader
+from .manga_catalog import MangaCatalog
+from .manga_site_enum import MangaSiteEnum
 
 class MangaSite(object):
     def __init__(self, name, url):
         self._name = name
         self._url = url
-        self._manga_dict = {}
+        # self._manga_dict = {}
         self.downloader = Downloader()
-
-    def get_manga(self, manga_name, manga_url=None) -> Manga:
-        if not manga_name in self._manga_dict.keys():
-            assert manga_url is not None
-            self._manga_dict[manga_name] = Manga(
-                name=manga_name, url=manga_url)
-        return self._manga_dict[manga_name]
+        self.__catalog = MangaCatalog()
+    
+    def get_manga(self, site: MangaSiteEnum, manga_name: Union[str, None], manga_url: str) -> Manga:
+        return self.__catalog.get_manga(site, manga_url, manga_name)
 
     def get_name(self) -> str:
         return self._name

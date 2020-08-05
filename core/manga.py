@@ -19,6 +19,7 @@ class Manga(object):
         self._last_update = None
         self._finished = None
         self._thum_img = None
+        self._idx_retrieved = False
 
     def add_chapter(self, m_type: MangaIndexTypeEnum, title: str, page_url: str):
         self._chapters[m_type].append(Chapter(title, page_url))
@@ -44,6 +45,12 @@ class Manga(object):
     def get_thum_img(self) -> str:
         return self._thum_img
 
+    def get_idx_retrieved(self) -> bool:
+        return self._idx_retrieved
+    
+    def retreived_idx_page(self):
+        self._idx_retrieved = True
+
     def set_meta_data(self, meta_data: dict):
         self._last_update = meta_data.get('last_update')
         self._finished = meta_data.get('finished')
@@ -55,3 +62,4 @@ class Manga(object):
     last_update = property(get_last_update)
     is_finished = property(get_finished)
     thum_img = property(get_thum_img)
+    idx_retrieved = property(get_idx_retrieved)
