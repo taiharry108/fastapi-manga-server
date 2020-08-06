@@ -3,6 +3,10 @@ import { ApiService } from 'src/app/api.service';
 import { Observable, Subject } from 'rxjs';
 import { Manga } from 'src/app/model/manga';
 import { takeUntil } from 'rxjs/operators';
+import { Chapter } from 'src/app/model/chapter';
+import { MangaIndexType } from 'src/app/model/manga-index-type.enum';
+
+declare var $: any;
 
 @Component({
   selector: 'app-manga-index',
@@ -11,7 +15,6 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class MangaIndexComponent implements OnInit, OnDestroy {
   manga$: Observable<Manga>;
-  manga: Manga;
   ngUnsubscribe = new Subject<void>();
   numCol: number;
   numRow: number;
@@ -19,10 +22,6 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
 
   constructor(private api: ApiService) {
     this.manga$ = this.api.mangaWIthIndexResultSubject;
-      // .pipe(takeUntil(this.ngUnsubscribe))
-      // .subscribe((manga) => {
-      //   this.manga = manga;
-      // });
   }
 
   ngOnInit(): void {
@@ -32,5 +31,10 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  onLinkClicked(mangaPage: string, idx: number, mType: MangaIndexType) {
+    $('#exampleModalCenter').modal('show');    
+    this.api.getImages(mangaPage, mType, idx);
   }
 }

@@ -26,6 +26,7 @@ export class SseService {
         else
           {
             eventSource.close();
+            observer.complete();
           }
       }
 

@@ -12,3 +12,12 @@
 .chapter-link:hover {
   color: black;
 }
+
+.modal {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.modal-dialog {
+  max-width: fit-content;
+}
