@@ -1,0 +1,21 @@
+<div class="dropdown" appClickOutside (clickOutside)="onClickOutside()" (click)="onDivClick()">
+  <form
+    [formGroup]="form"
+    class="form-inline my-2 my-lg-0"
+  >
+    <input
+      class="form-control mr-sm-2"
+      type="search"
+      placeholder="Search"
+      aria-label="Search"
+      formControlName="search"
+    />
+    <button class="btn btn-dark my-2 my-sm-0" type="button" (click)=onClick()>
+      Search
+    </button>
+  </form>
+
+  <div class="dropdown-menu" [hidden]="dropdownHidden">
+    <a *ngFor="let result of searchResult | async | slice:0:5 " class="dropdown-item" (click)="suggestionOnClick(result.url)">{{ result.name }}</a>
+  </div>
+</div>
