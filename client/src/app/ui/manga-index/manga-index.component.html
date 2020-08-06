@@ -13,15 +13,29 @@
       </p>
     </div>
   </div>
+
+  <div class="manga-index-type-tabs-container m-auto">
+    <ul class="nav nav-tabs nav-justified">
+      <li *ngFor="let item of tabNames; let idx = index" class="nav-item">
+        <a
+          class="tab-link nav-link bg-light"
+          [ngClass]="idx == this.activatedTab ? 'active' : ''"
+          (click)="onTabLinkClicked(idx)"
+          >{{ item }}</a
+        >
+      </li>
+    </ul>
+  </div>
+
   <div class="index-table-container bg-light mx-auto">
     <div class="row mx-2 justify-content-md-center">
       <div
-        *ngFor="let chapter of manga.chapters['Chapter']; let idx=index"
+        *ngFor="let chapter of manga.chapters[MangaIndexType[activatedTab]]; let idx = index"
         class="col-sm-3 col-lg-2 m-2"
       >
         <a
           class="chapter-link nav-link text-center"
-          (click)="onLinkClicked(manga.url.split('/')[3], idx, 0)"
+          (click)="onLinkClicked(manga.url.split('/')[3], idx)"
           >{{ chapter._title }}</a
         >
       </div>

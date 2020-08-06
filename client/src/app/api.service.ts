@@ -6,13 +6,15 @@ import { Subject, Observable } from 'rxjs';
 import { Manga } from './model/manga';
 import { MangaIndexType } from './model/manga-index-type.enum';
 import { SseService, Message } from './sse.service';
+import { MangaSite } from './manga-site.enum';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  serverUrl = environment.serverUrl;
   constructor(private http: HttpClient, private sseService: SseService) {}
+  serverUrl = environment.serverUrl;
+  currentSite = MangaSite.ManHuaRen;
 
   searchResultSubject = new Subject<SearchResult[]>();
   mangaWIthIndexResultSubject = new Subject<Manga>();
@@ -30,8 +32,17 @@ export class ApiService {
     return this._searchEmpty;
   }
 
+  get site(): string {
+    switch(this.currentSite) {
+      case MangaSite.ManHuaRen:
+        return "manhuaren";
+      default:
+        return "manhuaren";
+    }
+  }
+
   searchManga(keyword: string) {
-    const url = `${this.serverUrl}manhuaren/search/${keyword}`;
+    const url = `${this.serverUrl}${this.site}/search/${keyword}`;
 
     this.http.get<SearchResult[]>(url).subscribe((result) => {
       this._searchEmpty = false;
@@ -40,14 +51,14 @@ export class ApiService {
   }
 
   getIndexPage(mangaPage: string) {
-    const url = `${this.serverUrl}manhuaren/index/${mangaPage}`;
+    const url = `${this.serverUrl}${this.site}/index/${mangaPage}`;
     this.http.get<Manga>(url).subscribe((result) => {
       this.mangaWIthIndexResultSubject.next(result);
     });
   }
 
   getImages(mangaPage: string, mType: MangaIndexType, idx: number) {
-    const url = `${this.serverUrl}manhuaren/chapter/${mangaPage}?idx=${idx}&m_type_int=${mType}`;
+    const url = `${this.serverUrl}${this.site}/chapter/${mangaPage}?idx=${idx}&m_type_int=${mType}`;
     this.sseService.getServerSentEvent(url).subscribe((message) => {
       this.imagesSseEvent.next(message);
     });

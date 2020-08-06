@@ -1,21 +1,39 @@
-<div class="dropdown" appClickOutside (clickOutside)="onClickOutside()" (click)="onDivClick()">
-  <form
-    [formGroup]="form"
-    class="form-inline my-2 my-lg-0"
+<div class="search-form-container h-100">
+  <div
+    class="d-flex justify-content-center h-100 position-relative"
   >
-    <input
-      class="form-control mr-sm-2"
-      type="search"
-      placeholder="Search"
-      aria-label="Search"
-      formControlName="search"
-    />
-    <button class="btn btn-dark my-2 my-sm-0" type="button" (click)=onClick()>
-      Search
-    </button>
-  </form>
-
-  <div class="dropdown-menu" [hidden]="dropdownHidden">
-    <a *ngFor="let result of searchResult | async | slice:0:5 " class="dropdown-item" (click)="suggestionOnClick(result.url)">{{ result.name }}</a>
+    <div class="center-container position-absolute w-50">
+      <h2 class="text-light">Search manga from...</h2>
+      <form [formGroup]="form" class="form my-2 my-lg-0">
+        <div
+          appClickOutside
+          (clickOutside)="onClickOutside()"
+          (click)="onDivClick()"
+          class="input-container position-relative d-flex mx-auto"
+        >
+          <input
+            class="form-control form-control-lg"
+            type="search"
+            placeholder="Search..."
+            aria-label="Search"
+            formControlName="search"
+          />
+          <div
+            class="suggestion-container position-absolute my-2 w-100"
+            [hidden]="dropdownHidden"
+          >
+            <ul class="list-group">
+              <li
+                *ngFor="let result of searchResult | async | slice: 0:10"
+                (click)="suggestionOnClick(result.url)"
+                class="list-group-item"
+              >
+                {{ result.name }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

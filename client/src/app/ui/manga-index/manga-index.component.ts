@@ -19,6 +19,8 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
   numCol: number;
   numRow: number;
   many: number[];
+  activatedTab: number;
+  MangaIndexType = MangaIndexType;
 
   constructor(private api: ApiService) {
     this.manga$ = this.api.mangaWIthIndexResultSubject;
@@ -26,6 +28,7 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.many = new Array(100);
+    this.activatedTab = 0;
   }
 
   ngOnDestroy(): void {
@@ -33,8 +36,17 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  onLinkClicked(mangaPage: string, idx: number, mType: MangaIndexType) {
-    $('#exampleModalCenter').modal('show');    
-    this.api.getImages(mangaPage, mType, idx);
+  onLinkClicked(mangaPage: string, idx: number) {
+    $('#exampleModalCenter').modal('show');
+    this.api.getImages(mangaPage, this.activatedTab, idx);
+  }
+
+  onTabLinkClicked(idx: number) {
+    this.activatedTab = idx;    
+  }
+
+  get tabNames(): string[] {
+    const keys = Object.keys(MangaIndexType);
+    return keys.slice(keys.length / 2, keys.length);
   }
 }

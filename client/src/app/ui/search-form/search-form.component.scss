@@ -1,3 +1,20 @@
+@import "../../../../node_modules/bootstrap/scss/bootstrap.scss";
 .dropdown-menu {
-    display: block;
+  display: block;
+}
+
+.search-form-container {
+  position: relative;
+}
+
+.suggestion-container {
+  top: 100%;
+}
+
+.center-container {
+  top: 150px;
+}
+
+.list-group-item:hover {
+  background-color: $light;
 }

@@ -9,6 +9,7 @@ import { ViewPanelComponent } from './ui/view-panel/view-panel.component';
 import { SearchFormComponent } from './ui/search-form/search-form.component';
 import { ClickOutsideDirective } from './common/click-outside.directive';
 import { MangaIndexComponent } from './ui/manga-index/manga-index.component';
+import { MainComponent } from './ui/main/main.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { MangaIndexComponent } from './ui/manga-index/manga-index.component';
     ViewPanelComponent,
     SearchFormComponent,
     ClickOutsideDirective,
-    MangaIndexComponent
+    MangaIndexComponent,
+    MainComponent
   ],
   imports: [
     BrowserModule,

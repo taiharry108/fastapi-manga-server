@@ -1,11 +1,12 @@
 @import "node_modules/bootstrap/scss/bootstrap.scss";
+.manga-index-type-tabs-container,
 .index-table-container {
   max-width: 75%;
 }
 .chapter-link {
-  font-size: 1.5rem;
-  font-weight: 500;
-  line-height: 1.2;
+  // font-size: 1.5rem;
+  // font-weight: 500;
+  // line-height: 1.2;
   color: $dark;
 }
 
@@ -20,4 +21,9 @@
 
 .modal-dialog {
   max-width: fit-content;
+}
+
+.tab-link {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
 }
