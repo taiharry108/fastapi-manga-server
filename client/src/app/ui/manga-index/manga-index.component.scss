@@ -3,11 +3,12 @@
 .index-table-container {
   max-width: 75%;
 }
-.chapter-link {
-  // font-size: 1.5rem;
-  // font-weight: 500;
-  // line-height: 1.2;
+.chapter-link {  
   color: $dark;
+}
+
+.chapter-link-container:hover {
+  background-color: $gray-300;
 }
 
 .chapter-link:hover {
