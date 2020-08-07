@@ -1,16 +1,15 @@
 <div *ngIf="manga$ | async as manga" class="manga-index-container">
   <div class="jumbotron bg-primary rounded-0 w-100 mx-auto my-0">
-    <div class="w-75 m-auto">
-      <h1 class="display-4 text-light">{{ manga.name }}</h1>
-      <p class="lead text-light">
-        This is a simple hero unit, a simple jumbotron-style component for
-        calling extra attention to featured content or information.
-      </p>
-      <hr class="my-4" />
-      <p class="text-light">
-        It uses utility classes for typography and spacing to space content out
-        within the larger container.
-      </p>
+    <div class="w-75 m-auto d-flex">
+      <div class="thum-img-container">
+        <img [src]="'data:image/jpeg;base64,' + manga.thumImg">
+      </div>
+      <div class="meta-container w-75 ml-5">
+        <h1 class="display-4 text-light">{{ manga.name }}</h1>     
+        <hr class="my-4" />
+        <p class="lead text-light">Last Update: {{ manga.lastUpdate }}</p>      
+        <p class="lead text-light">Status: {{ manga.finished ? 'Finished' : 'Ongoing' }}</p>
+      </div>
     </div>
   </div>
 
@@ -30,7 +29,10 @@
   <div class="index-table-container bg-light mx-auto">
     <div class="row mx-2 justify-content-md-center">
       <div
-        *ngFor="let chapter of manga.chapters[MangaIndexType[activatedTab]]; let idx = index"
+        *ngFor="
+          let chapter of manga.chapters[MangaIndexType[activatedTab]];
+          let idx = index
+        "
         class="chapter-link-container col-sm-3 col-lg-2 m-2"
       >
         <a
