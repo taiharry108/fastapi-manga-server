@@ -4,7 +4,6 @@ import aiohttp
 import asyncio
 from typing import Any, AsyncIterable, Dict, List
 from core.utils import SingletonDecorator
-from time import perf_counter
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',

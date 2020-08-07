@@ -51,15 +51,15 @@ export class ApiService {
     switch(this.currentSite) {
       case MangaSite.ManHuaRen:
         return "manhuaren";
-      // case MangaSite.ManHuaGui:
-      //   return "manhuagui"
+      case MangaSite.ManHuaDB:
+        return "manhuadb"
       default:
         return "manhuaren";
     }
   }
 
   searchManga(keyword: string) {
-    const url = `${this.serverUrl}${this.site}/search/${keyword}`;
+    const url = `${this.serverUrl}search/${this.site}/${keyword}`;
 
     this.http.get<SearchResult[]>(url).subscribe((result) => {
       this._searchEmpty = false;
@@ -68,14 +68,17 @@ export class ApiService {
   }
 
   getIndexPage(mangaPage: string) {
-    const url = `${this.serverUrl}${this.site}/index/${mangaPage}`;
+    const url = `${this.serverUrl}index/${this.site}/${mangaPage}`;
     this.http.get<Manga>(url).subscribe((result) => {
       this.mangaWIthIndexResultSubject.next(result);
     });
   }
 
-  getImages(mangaPage: string, mType: MangaIndexType, idx: number) {
-    const url = `${this.serverUrl}${this.site}/chapter/${mangaPage}?idx=${idx}&m_type_int=${mType}`;
+  getImages(mangaUrl: string, mType: MangaIndexType, idx: number) {
+    const splits = mangaUrl.split('/');
+    const mangaPage = splits[splits.length - 2];    
+    const url = `${this.serverUrl}chapter/${this.site}/${mangaPage}?idx=${idx}&m_type_int=${mType}`;
+    console.log(url);
     this.sseService.getServerSentEvent(url).subscribe((message) => {
       this.imagesSseEvent.next(message);
     });

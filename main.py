@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import manhuaren
+# from routers import manhuaren, manhuadb
+from routers import main_router
 from core.downloader import Downloader
 from fastapi.logger import logger
 from core.singleton_aiohttp import SingletonAiohttp
@@ -31,8 +32,9 @@ app.add_middleware(
 )
 
 app.include_router(
-    manhuaren.router,
-    prefix="/api/manhuaren",
-    tags=["manhuaren"],
+    main_router.router,
+    prefix="/api",
+    # tags=["manhuaren"],
     responses={404: {"description": "Not Found"}}
 )
+

@@ -52,14 +52,21 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       .subscribe((value) => {
         const { search, site } = value;
         this.api.currentSite = site;
-        console.log(this.api.site);
         if (search.length > 3) this.api.searchManga(search);
         if (search.length === 0) this.api.emptySearch();
       });
   }
 
+  genMangaPage(url: string) {
+    switch(this.api.currentSite) {
+
+    }
+  }
+
   suggestionOnClick(url: string) {
-    const mangaPage = url.split('/')[3];
+    const splits = url.split('/');
+    const mangaPage = splits[splits.length-2];
+    console.log(mangaPage);
     this.api.getIndexPage(mangaPage);
     this.router.navigate(['/manga-index']);
   }

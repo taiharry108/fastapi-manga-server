@@ -25,5 +25,8 @@ class MangaCatalog(object):
             self._add_manga(site, manga)
             return manga
     
+    def get_num_manga(self, site: MangaSiteEnum):
+        return len(self.__data[site])
+    
     
     

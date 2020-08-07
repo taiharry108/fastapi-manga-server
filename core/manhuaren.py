@@ -1,10 +1,9 @@
-from typing import List, AsyncIterable, Dict, Any
+from typing import List
 from .manga_site import MangaSite
 from .manga_site_enum import MangaSiteEnum
 from .manga import Manga, MangaIndexTypeEnum
 import re
 import string
-import json
 
 digs = string.digits + string.ascii_letters
 
@@ -53,7 +52,7 @@ def decode(p, a: int, c: int, k, d):
     return p
 
 
-class ManHuaRen(MangaSite):
+class ManHuaRen(MangaSite):    
     def __init__(self):
         super(ManHuaRen, self).__init__(
             '漫畫人', 'https://www.manhuaren.com/'
@@ -89,12 +88,13 @@ class ManHuaRen(MangaSite):
 
         manga = self.get_manga(self.site, None, page)
 
-        if manga is not None:
+        if manga is not None and manga.idx_retrieved:
             return manga
 
         soup = await self.downloader.get_soup(page)
 
         name = soup.find('p', class_='detail-main-info-title').text
+        manga = self.get_manga(self.site, name, page)
 
         div = soup.find('div', class_='detail-selector')
 
@@ -105,7 +105,7 @@ class ManHuaRen(MangaSite):
             if 'titleSelect' in onclick:
                 id_dict[a.text] = onclick.split("'")[3]
 
-        manga = self.get_manga(self.site, name, page)
+        
 
         for idx_type, id_v in id_dict.items():
             ul = soup.find('ul', {'id': id_v})
@@ -141,11 +141,4 @@ class ManHuaRen(MangaSite):
             if match2:
                 pages = eval(match2.group(1))
                 return pages
-        return []
-
-    async def download_chapter(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> AsyncIterable[str]:
-        img_urls = await self.get_page_urls(manga, m_type, idx)
-        async for img_dict in self.downloader.get_images(img_urls):
-            yield f'data: {json.dumps(img_dict)}\n\n'
-        
-        yield 'data: {}\n\n'
+        return []    

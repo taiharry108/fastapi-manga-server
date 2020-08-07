@@ -1,5 +1,6 @@
 from enum import Enum
 
 
-class MangaSiteEnum(Enum):
-    ManHuaRen = "漫畫人"
+class MangaSiteEnum(str, Enum):
+    ManHuaRen = "manhuaren"
+    ManHuaDB = "manhuadb"

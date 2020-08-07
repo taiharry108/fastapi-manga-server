@@ -1,11 +1,13 @@
+from core.manga_site_factory import get_idx_page, get_manga_site
+from core.manga_site_enum import MangaSiteEnum
 from core.manga import MangaIndexTypeEnum
 from typing import List
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
+from core.manhuadb import ManHuaDB
 from core.manhuaren import ManHuaRen
 from pydantic import BaseModel, HttpUrl
 from core.manga_catalog import MangaCatalog
-from core.manga_site_factory import MangaSiteEnum
 router = APIRouter()
 catalog = MangaCatalog()
 
@@ -15,36 +17,36 @@ class Manga(BaseModel):
     url: HttpUrl
 
 
-@router.get("/search/{search_keyword}", response_model=List[Manga])
-async def search_manga(search_keyword: str):
-    mhr = ManHuaRen()
-    mangas = await mhr.search_manga(search_keyword)
+@router.get("/search/{site}/{search_keyword}", response_model=List[Manga])
+async def search_manga(site: MangaSiteEnum, search_keyword: str):
+    manga_site = get_manga_site(site)
+    print(manga_site)
+    mangas = await manga_site.search_manga(search_keyword)
     return [{"name": manga.name, "url": manga.url} for manga in mangas]
 
 
-@router.get('/index/{manga_page}')
-async def get_index(manga_page: str):
-    mhr = ManHuaRen()
-    url = f"{mhr.url}{manga_page.strip('/')}/"
-    print(url)
+@router.get('/index/{site}/{manga_page}')
+async def get_index(site: MangaSiteEnum, manga_page: str):
+    manga_site = get_manga_site(site)
+    url = get_idx_page(site, manga_page)
 
     manga = catalog.get_manga(MangaSiteEnum.ManHuaRen, url)
     if manga is None or not manga.idx_retrieved:
         print(f"going to retrieve {url}")
-        manga = await mhr.get_index_page(url)
+        manga = await manga_site.get_index_page(url)
     print(catalog.get_num_manga(MangaSiteEnum.ManHuaRen))
     return {"name": manga.name, "url": manga.url, "chapters": manga.chapters}
 
 
-@router.get('/chapter/{manga_page}')
-async def get_index(manga_page: str, idx: int, m_type_int: int = 0):
-    mhr = ManHuaRen()
-    url = f"{mhr.url}{manga_page.strip('/')}/"
+@router.get('/chapter/{site}/{manga_page}')
+async def get_chapter(site: MangaSiteEnum, manga_page: str, idx: int, m_type_int: int = 0):
+    manga_site = get_manga_site(site)
+    url = get_idx_page(site, manga_page)
 
     manga = catalog.get_manga(MangaSiteEnum.ManHuaRen, url)
     if manga is None or not manga.idx_retrieved:
         print(f"going to retrieve {url}")
-        manga = await mhr.get_index_page(url)
+        manga = await manga_site.get_index_page(url)
 
     if m_type_int == 0:
         m_type = MangaIndexTypeEnum.CHAPTER
@@ -52,6 +54,5 @@ async def get_index(manga_page: str, idx: int, m_type_int: int = 0):
         m_type = MangaIndexTypeEnum.VOLUME
     else:
         m_type = MangaIndexTypeEnum.MISC
-    print(m_type)
 
-    return StreamingResponse(mhr.download_chapter(manga, m_type, idx), media_type="text/event-stream")
+    return StreamingResponse(manga_site.download_chapter(manga, m_type, idx), media_type="text/event-stream")
