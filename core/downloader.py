@@ -1,8 +1,10 @@
+import base64
 from bs4 import BeautifulSoup
 import aiohttp
 import asyncio
 from typing import Any, AsyncIterable, Dict, List
 from core.utils import SingletonDecorator
+from time import perf_counter
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
@@ -61,12 +63,14 @@ class Downloader(object):
 
         prod_queue = asyncio.Queue()
         con_queue = asyncio.Queue()
+        total = len(urls)
         for idx, url in enumerate(urls):
             await prod_queue.put((idx, url))
         await prod_queue.put(None)
 
         [asyncio.create_task(
-            producer(prod_queue, con_queue)) for i in range(self.num_workers)]
+            producer(prod_queue, con_queue)) for _ in range(self.num_workers)]
 
         async for idx, img_bytes in consumer(con_queue):
-            yield {"idx": idx, "img": img_bytes}
+            encoded_str = base64.b64encode(img_bytes).decode("utf-8")
+            yield {"idx": idx, "message": encoded_str, "total": total}

@@ -3,6 +3,7 @@ from core.manhuaren import ManHuaRen
 from core.manga import MangaIndexTypeEnum
 from core.downloader import Downloader
 from core.utils import enter_session
+import json
 
 class TestManHuaRen(aiounittest.AsyncTestCase):
     def setUp(self):
@@ -56,10 +57,10 @@ class TestManHuaRen(aiounittest.AsyncTestCase):
         self.downloader.session = session
         manga = await self.site.get_index_page("https://www.manhuaren.com/manhua-haidaozhanji/")
         img_urls = await self.site.get_page_urls(manga, MangaIndexTypeEnum.CHAPTER, 0)
-        self.assertEqual(
-            img_urls[0], "https://manhua1034-104-250-139-219.cdnmanhua.net/3/2800/1006905/1_1002.jpg?cid=1006905&key=9a12f75785ef4d8dc9fffcfa58f5e406&type=1")
-        self.assertEqual(
-            img_urls[-1], "https://manhua1034-104-250-139-219.cdnmanhua.net/3/2800/1006905/24_5981.jpg?cid=1006905&key=9a12f75785ef4d8dc9fffcfa58f5e406&type=1")
+        self.assertTrue(
+            img_urls[0].startswith("https://manhua1034-104-250-139-219.cdnmanhua.net/3/2800/1006905/1_1002.jpg?cid=1006905"))
+        self.assertTrue(
+            img_urls[-1].startswith("https://manhua1034-104-250-139-219.cdnmanhua.net/3/2800/1006905/24_5981.jpg?cid=1006905"))
         self.assertEqual(len(img_urls), 24)
     
     @enter_session
@@ -67,10 +68,15 @@ class TestManHuaRen(aiounittest.AsyncTestCase):
         self.downloader.session = session
         count = 0
         manga = await self.site.get_index_page("https://www.manhuaren.com/manhua-haidaozhanji/")        
-        async for idx, image_bytes in self.site.download_chapter(manga, MangaIndexTypeEnum.CHAPTER, 0):
+        async for item_str in self.site.download_chapter(manga, MangaIndexTypeEnum.CHAPTER, 0):            
+            item = json.loads(item_str[6:-2])
+            if len(item) == 0:
+                continue
+            idx = item['idx']
+            image_bytes = item['message']
             count += 1
             if idx == 0:
-                self.assertEqual(len(image_bytes), 331566)            
+                self.assertEqual(len(image_bytes), 442088)
             
         self.assertEqual(count, 24)
 

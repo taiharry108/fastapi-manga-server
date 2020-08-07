@@ -1,9 +1,10 @@
-from typing import List, AsyncIterable, Tuple
+from typing import List, AsyncIterable, Dict, Any
 from .manga_site import MangaSite
 from .manga_site_enum import MangaSiteEnum
 from .manga import Manga, MangaIndexTypeEnum
 import re
 import string
+import json
 
 digs = string.digits + string.ascii_letters
 
@@ -31,8 +32,8 @@ def int2base(x, base):
     return ''.join(digits)
 
 
-def decode(p, a, c, k, d):
-    def e(c):
+def decode(p, a: int, c: int, k, d):
+    def e(c: int) -> str:
         first = "" if c < a else e(int(c/a))
         c = c % a
         if c > 35:
@@ -44,11 +45,11 @@ def decode(p, a, c, k, d):
         c -= 1
         d[e(c)] = k[c] if k[c] != "" else e(c)
     k = [lambda x: d[x]]
-    def e(): return '\\w+'
+    def e2(): return '\\w+'
     c = 1
     while c != 0:
         c -= 1
-        p = re.sub(f'\\b{e()}\\b', lambda x: k[c](x.group()), p)
+        p = re.sub(f'\\b{e2()}\\b', lambda x: k[c](x.group()), p)
     return p
 
 
@@ -142,7 +143,9 @@ class ManHuaRen(MangaSite):
                 return pages
         return []
 
-    async def download_chapter(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> AsyncIterable[Tuple[int, bytes]]:
+    async def download_chapter(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> AsyncIterable[str]:
         img_urls = await self.get_page_urls(manga, m_type, idx)
         async for img_dict in self.downloader.get_images(img_urls):
-            yield img_dict["idx"], img_dict["img"]
+            yield f'data: {json.dumps(img_dict)}\n\n'
+        
+        yield 'data: {}\n\n'

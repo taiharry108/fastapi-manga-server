@@ -36,5 +36,5 @@ class TestDownloader(aiounittest.AsyncTestCase):
         async for img_dict in self.downloader.get_images(urls):
             count += 1
             if img_dict["idx"] == 0:
-                self.assertEqual(len(img_dict["img"]), 331566)
+                self.assertEqual(len(img_dict["message"]), 442088)
         self.assertEqual(count, 2)

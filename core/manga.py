@@ -1,10 +1,10 @@
 from enum import Enum
 from .chapter import Chapter
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 
 if TYPE_CHECKING:
-    from MangaSite import MangaSite
+    from .manga_site import MangaSite
 
 class MangaIndexTypeEnum(Enum):
     CHAPTER = "Chapter"
@@ -36,13 +36,13 @@ class Manga(object):
     def get_chapters(self) -> dict:
         return self._chapters
 
-    def get_finished(self) -> bool:
+    def get_finished(self) -> Union[bool, None]:
         return self._finished
 
-    def get_last_update(self) -> str:
+    def get_last_update(self) -> Union[str, None]:
         return self._last_update
 
-    def get_thum_img(self) -> str:
+    def get_thum_img(self) -> Union[str, None]:
         return self._thum_img
 
     def get_idx_retrieved(self) -> bool:
