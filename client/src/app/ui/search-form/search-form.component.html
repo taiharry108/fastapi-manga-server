@@ -1,15 +1,13 @@
 <div class="search-form-container h-100">
-  <div
-    class="d-flex justify-content-center h-100 position-relative"
-  >
+  <div class="d-flex justify-content-center h-100 position-relative">
     <div class="center-container position-absolute w-50">
       <h2 class="text-light">Search manga from...</h2>
-      <form [formGroup]="form" class="form my-2 my-lg-0">
+      <form [formGroup]="form" class="form my-2 my-lg-0 d-flex">
         <div
           appClickOutside
           (clickOutside)="onClickOutside()"
           (click)="onDivClick()"
-          class="input-container position-relative d-flex mx-auto"
+          class="input-container position-relative d-flex mx-auto w-75"
         >
           <input
             class="form-control form-control-lg"
@@ -33,6 +31,17 @@
             </ul>
           </div>
         </div>
+        <select
+          id="siteState"
+          class="site-select form-control form-control-lg ml-2"
+          formControlName="site"
+        >          
+          <option
+            *ngFor="let name of siteNames"
+            [ngValue]="name"
+            >{{ name }}</option
+          >
+        </select>
       </form>
     </div>
   </div>

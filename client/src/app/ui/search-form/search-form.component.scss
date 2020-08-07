@@ -18,3 +18,11 @@
 .list-group-item:hover {
   background-color: $light;
 }
+
+.input-container {
+  flex: 1 1 auto;
+}
+
+.site-select {
+  flex: 0 1 200px;
+}

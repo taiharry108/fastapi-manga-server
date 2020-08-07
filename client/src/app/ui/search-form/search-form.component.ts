@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { ApiService } from 'src/app/api.service';
 import { SearchResult } from 'src/app/model/search-result';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
 import {
   takeUntil,
   debounceTime,
@@ -26,15 +26,22 @@ declare var $: any;
 export class SearchFormComponent implements OnInit, OnDestroy {
   form: FormGroup;
   search = new FormControl('', Validators.required);
+  site = new FormControl();
   searchResult: Observable<SearchResult[]>;
   ngUnsubscribe = new Subject<void>();
   private _dropdownHidden: boolean;
 
-  constructor(private fb: FormBuilder, private api: ApiService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private api: ApiService,
+    private router: Router
+  ) {
     this.form = this.fb.group({
       search: this.search,
+      site: this.site,
     });
     this.searchResult = this.api.searchResultSubject;
+    this.form.controls.site.setValue(this.api.currentSite);
   }
 
   ngOnInit(): void {
@@ -43,7 +50,9 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .pipe(debounceTime(150), distinctUntilChanged())
       .subscribe((value) => {
-        const { search } = value;
+        const { search, site } = value;
+        this.api.currentSite = site;
+        console.log(this.api.site);
         if (search.length > 3) this.api.searchManga(search);
         if (search.length === 0) this.api.emptySearch();
       });
@@ -52,8 +61,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   suggestionOnClick(url: string) {
     const mangaPage = url.split('/')[3];
     this.api.getIndexPage(mangaPage);
-    this.router.navigate(["/manga-index"]);
-
+    this.router.navigate(['/manga-index']);
   }
 
   ngOnDestroy(): void {
@@ -77,4 +85,9 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   onDivClick() {
     this._dropdownHidden = false;
   }
+
+  get siteNames(): string[] {
+    return this.api.allSiteNames;
+  }
+
 }

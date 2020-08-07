@@ -12,9 +12,11 @@ import { MangaSite } from './manga-site.enum';
   providedIn: 'root',
 })
 export class ApiService {
-  constructor(private http: HttpClient, private sseService: SseService) {}
+  constructor(private http: HttpClient, private sseService: SseService) {
+    this._currentSite = MangaSite.ManHuaRen;
+  }
   serverUrl = environment.serverUrl;
-  currentSite = MangaSite.ManHuaRen;
+  _currentSite: MangaSite;
 
   searchResultSubject = new Subject<SearchResult[]>();
   mangaWIthIndexResultSubject = new Subject<Manga>();
@@ -32,10 +34,25 @@ export class ApiService {
     return this._searchEmpty;
   }
 
+  get allSiteNames(): string[] {
+    const keys = Object.keys(MangaSite);
+    return keys.map(key => MangaSite[key]);
+  }
+
+  set currentSite(siteVal: MangaSite) {
+    this._currentSite = siteVal;
+  }
+
+  get currentSite(): MangaSite {
+    return this._currentSite;
+  }
+
   get site(): string {
     switch(this.currentSite) {
       case MangaSite.ManHuaRen:
         return "manhuaren";
+      // case MangaSite.ManHuaGui:
+      //   return "manhuagui"
       default:
         return "manhuaren";
     }
