@@ -4,8 +4,6 @@ from core.manga import MangaIndexTypeEnum
 from typing import List
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
-from core.manhuadb import ManHuaDB
-from core.manhuaren import ManHuaRen
 from pydantic import BaseModel, HttpUrl
 from core.manga_catalog import MangaCatalog
 router = APIRouter()
@@ -34,8 +32,15 @@ async def get_index(site: MangaSiteEnum, manga_page: str):
     if manga is None or not manga.idx_retrieved:
         print(f"going to retrieve {url}")
         manga = await manga_site.get_index_page(url)
-    print(catalog.get_num_manga(MangaSiteEnum.ManHuaRen))
-    return {"name": manga.name, "url": manga.url, "chapters": manga.chapters}
+
+    return {
+        "name": manga.name,
+        "url": manga.url,
+        "chapters": manga.chapters,
+        "lastUpdate": manga.last_update,
+        "finished": manga.is_finished,
+        "thumImg": manga.thum_img
+    }
 
 
 @router.get('/chapter/{site}/{manga_page}')

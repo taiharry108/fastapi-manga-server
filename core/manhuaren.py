@@ -1,3 +1,4 @@
+import base64
 from typing import List
 from .manga_site import MangaSite
 from .manga_site_enum import MangaSiteEnum
@@ -74,6 +75,19 @@ class ManHuaRen(MangaSite):
         result = [handle_div(d) for d in soup.find('ul', class_='book-list').find_all(
             'div', class_='book-list-info')]
         return result
+    
+    def get_meta_data(self, soup):
+        div = soup.find(
+            'div', {'id': 'tempc'}).find('div', class_='detail-list-title')
+        last_update = div.find(
+            'span', class_='detail-list-title-3').text.strip()
+        finished = div.find('span', class_='detail-list-title-1').text == '已完结'
+        thum_img = soup.find('img', class_='detail-main-bg').get('src')
+
+        if not thum_img.startswith('http'):
+            thum_img = self.url + thum_img.lstrip('/')
+
+        return {'last_update': last_update, 'finished': finished, 'thum_img': thum_img}
 
     async def get_index_page(self, page: str) -> Manga:
 
@@ -116,9 +130,13 @@ class ManHuaRen(MangaSite):
                     url = self.url + url.lstrip('/')
                 title = a.text
                 manga.add_chapter(m_type=m_type, title=title, page_url=url)
+        
+        meta_dict = self.get_meta_data(soup)
+        thum_img_b = await self.downloader.get_img(meta_dict['thum_img'])
+        meta_dict['thum_img'] = base64.b64encode(thum_img_b).decode("utf-8")
 
-        manga.retreived_idx_page()
-        # manga.set_meta_data(self.get_meta_data(soup))
+        manga.set_meta_data(meta_dict)
+        manga.retreived_idx_page()        
         return manga
 
     async def get_page_urls(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> List[str]:

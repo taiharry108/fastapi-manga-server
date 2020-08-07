@@ -29,6 +29,19 @@ class ManHuaDB(MangaSite):
         result = [handle_div(d) for d in soup.find_all(
             'div', class_='comicbook-index')]
         return result
+    
+    def get_meta_data(self, soup):
+        table = soup.find(
+            'table', class_='comic-meta-data-table')
+        last_update = ""
+        finished = table.find('a', class_='comic-pub-state').text != '连载中'
+        thum_img = table.find(
+            'td', class_='comic-cover').find('img').get('src')
+
+        if not thum_img.startswith('http'):
+            thum_img = self.url + thum_img.lstrip('/')
+
+        return {'last_update': last_update, 'finished': finished, 'thum_img': thum_img}
 
     async def get_index_page(self, page: str) -> Manga:
 
@@ -70,7 +83,11 @@ class ManHuaDB(MangaSite):
                 if not url.startswith('http'):
                     url = self.url + url.lstrip('/')
                 manga.add_chapter(m_type=m_type, title=title, page_url=url)
+        meta_dict = self.get_meta_data(soup)
+        thum_img_b = await self.downloader.get_img(meta_dict['thum_img'])
+        meta_dict['thum_img'] = base64.b64encode(thum_img_b).decode("utf-8")
 
+        manga.set_meta_data(meta_dict)
         manga.retreived_idx_page()
         return manga
 
@@ -100,10 +117,3 @@ class ManHuaDB(MangaSite):
         pages = [f'{host}{img_pre}{d["img_webp"]}' for d in decoded_list]
         
         return pages
-
-    # async def download_chapter(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> AsyncIterable[str]:
-    #     img_urls = await self.get_page_urls(manga, m_type, idx)
-    #     async for img_dict in self.downloader.get_images(img_urls):
-    #         yield f'data: {json.dumps(img_dict)}\n\n'
-
-    #     yield 'data: {}\n\n'
