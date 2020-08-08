@@ -136,8 +136,7 @@ class ManHuaGui(MangaSite):
         return manga
 
     async def get_page_urls(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> List[str]:
-        chapter = manga.get_chapter(m_type, idx)
-        print(chapter.page_url)
+        chapter = manga.get_chapter(m_type, idx)        
         soup = await self.downloader.get_soup(chapter.page_url)
 
         pattern = re.compile('window.*return p;}(.*\))\)')
