@@ -1,14 +1,17 @@
 import base64
+from aiohttp.client_reqrep import ClientResponse
 from bs4 import BeautifulSoup
 import aiohttp
 import asyncio
-from typing import Any, AsyncIterable, Dict, List
+from typing import Any, AsyncIterable, Dict, List, Union
 from core.utils import SingletonDecorator
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
     'Accept-Language': 'en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7,ja;q=0.6,zh-CN;q=0.5'
 }
+"https://i.hamreus.com/ps3/d/DrSTONE_boichi/第160话/1_3005.jpg.webp?e=1597705395&amp;m=s7ZvuPnPIObqEmoBIjW1zA"
+
 
 @SingletonDecorator
 class Downloader(object):
@@ -18,22 +21,35 @@ class Downloader(object):
 
     async def get_soup(self, url: str) -> BeautifulSoup:
         """Make a get request and return with BeautifulSoup"""
+
         async with self.session.get(url, headers=HEADERS) as resp:
             if resp.status == 200:
                 return BeautifulSoup(await resp.text(), features="html.parser")
             else:
                 raise RuntimeError(f"response status code: {resp.status}")
 
-    async def get_img(self, url: str) -> bytes:
-        """Request image and return with bytes"""
+    async def get_json(self, url: str):
+        """Make a get request and return with BeautifulSoup"""
         async with self.session.get(url, headers=HEADERS) as resp:
+            if resp.status == 200:
+                return await resp.json()
+            else:
+                raise RuntimeError(f"response status code: {resp.status}")
+
+    async def get_img(self, url: str, referer: str = None) -> bytes:
+        """Request image and return with bytes"""
+        headers = {}
+        headers.update(HEADERS)
+        if referer:
+            headers["Referer"] = referer
+        async with self.session.get(url, headers=headers) as resp:
             if resp.status == 200:
                 while True:
                     return await resp.content.read()
             else:
                 raise RuntimeError(f"response status code: {resp.status}")
 
-    async def get_images(self, urls: List[str]) -> AsyncIterable[Dict[str, Any]]:
+    async def get_images(self, urls: List[str], referer: str) -> AsyncIterable[Dict[str, Any]]:
         """Request images and return async iterable dictionary with image bytes and index"""
         async def producer(in_q, out_q):
             while True:
@@ -44,7 +60,7 @@ class Downloader(object):
                     await out_q.put(None)
                     break
                 idx, url = item
-                img_bytes = await self.get_img(url)
+                img_bytes = await self.get_img(url, referer)
                 await asyncio.sleep(0.3)
                 await out_q.put((idx, img_bytes))
 

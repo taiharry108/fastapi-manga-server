@@ -42,7 +42,8 @@ class MangaSite(object):
 
     async def download_chapter(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> AsyncIterable[str]:
         img_urls = await self.get_page_urls(manga, m_type, idx)
-        async for img_dict in self.downloader.get_images(img_urls):
+        referer = manga.get_chapter(m_type, idx).page_url
+        async for img_dict in self.downloader.get_images(img_urls, referer=referer):
             yield f'data: {json.dumps(img_dict)}\n\n'
 
         yield 'data: {}\n\n'
