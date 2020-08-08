@@ -33,7 +33,7 @@ class TestDownloader(aiounittest.AsyncTestCase):
         count = 0
         urls = ["https://manhua1034-104-250-139-219.cdnmanhua.net/3/2800/1006905/1_1002.jpg?cid=1006905&key=9a12f75785ef4d8dc9fffcfa58f5e406&type=1",
                 "https://manhua1034-104-250-139-219.cdnmanhua.net/3/2800/1006905/2_7528.jpg?cid=1006905&key=9a12f75785ef4d8dc9fffcfa58f5e406&type=1"]
-        async for img_dict in self.downloader.get_images(urls, None):
+        async for img_dict in self.downloader.get_images(urls, ""):
             count += 1
             if img_dict["idx"] == 0:
                 self.assertEqual(len(img_dict["message"]), 442088)

@@ -8,6 +8,9 @@ class Chapter(object):
 
     def get_page_url(self):
         return self._page_url
+    
+    def __str__(self):
+        return f"Chapter - {self.title}: {self.page_url}"
 
     title = property(get_title)
     page_url = property(get_page_url)

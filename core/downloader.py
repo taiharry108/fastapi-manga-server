@@ -1,9 +1,10 @@
 import base64
+from functools import wraps
 from aiohttp.client_reqrep import ClientResponse
 from bs4 import BeautifulSoup
 import aiohttp
 import asyncio
-from typing import Any, AsyncIterable, Dict, List, Union
+from typing import Any, AsyncIterable, Callable, Dict, List, Union
 from core.utils import SingletonDecorator
 
 HEADERS = {
@@ -13,41 +14,44 @@ HEADERS = {
 "https://i.hamreus.com/ps3/d/DrSTONE_boichi/第160话/1_3005.jpg.webp?e=1597705395&amp;m=s7ZvuPnPIObqEmoBIjW1zA"
 
 
-@SingletonDecorator
-class Downloader(object):
+def get_resp(func: Callable) -> Callable:
+    @wraps(func)
+    async def wrapped(self: "_Downloader", url: str, additional_headers: Dict[str, str] = {}):
+        headers = {}
+        headers.update(additional_headers)
+        headers.update(HEADERS)        
+        async with self.session.get(url, headers=headers) as resp:
+            if resp.status == 200:
+                return await func(self, resp)
+            else:
+                raise RuntimeError(f"response status code: {resp.status}")
+    return wrapped
+
+
+class _Downloader(object):
+
     def __init__(self, session: aiohttp.ClientSession):
         self.session = session
         self.num_workers = 2
-
-    async def get_soup(self, url: str) -> BeautifulSoup:
+    
+    @get_resp
+    async def get(self, resp: ClientResponse) -> BeautifulSoup:
         """Make a get request and return with BeautifulSoup"""
+        return await resp.text()
 
-        async with self.session.get(url, headers=HEADERS) as resp:
-            if resp.status == 200:
-                return BeautifulSoup(await resp.text(), features="html.parser")
-            else:
-                raise RuntimeError(f"response status code: {resp.status}")
-
-    async def get_json(self, url: str):
+    @get_resp
+    async def get_soup(self, resp: ClientResponse) -> BeautifulSoup:
         """Make a get request and return with BeautifulSoup"""
-        async with self.session.get(url, headers=HEADERS) as resp:
-            if resp.status == 200:
-                return await resp.json()
-            else:
-                raise RuntimeError(f"response status code: {resp.status}")
+        return BeautifulSoup(await resp.text(), features="html.parser")
 
-    async def get_img(self, url: str, referer: str = None) -> bytes:
-        """Request image and return with bytes"""
-        headers = {}
-        headers.update(HEADERS)
-        if referer:
-            headers["Referer"] = referer
-        async with self.session.get(url, headers=headers) as resp:
-            if resp.status == 200:
-                while True:
-                    return await resp.content.read()
-            else:
-                raise RuntimeError(f"response status code: {resp.status}")
+    @get_resp
+    async def get_json(self, resp: ClientResponse) -> Any:
+        """Make a get request and return with BeautifulSoup"""
+        return await resp.json()
+
+    @get_resp
+    async def get_img(self, resp: ClientResponse) -> bytes:
+        return await resp.content.read()
 
     async def get_images(self, urls: List[str], referer: str) -> AsyncIterable[Dict[str, Any]]:
         """Request images and return async iterable dictionary with image bytes and index"""
@@ -60,7 +64,7 @@ class Downloader(object):
                     await out_q.put(None)
                     break
                 idx, url = item
-                img_bytes = await self.get_img(url, referer)
+                img_bytes = await self.get_img(url, {"Referer": referer})
                 await asyncio.sleep(0.3)
                 await out_q.put((idx, img_bytes))
 
@@ -89,3 +93,6 @@ class Downloader(object):
         async for idx, img_bytes in consumer(con_queue):
             encoded_str = base64.b64encode(img_bytes).decode("utf-8")
             yield {"idx": idx, "message": encoded_str, "total": total}
+
+
+Downloader = SingletonDecorator(_Downloader)

@@ -50,7 +50,8 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(150), distinctUntilChanged())
       .subscribe((value) => {
         const { search, site } = value;
-        this.api.currentSite = site;
+        console.log(site)
+        this.api.currentSite = site;        
         if (search.length > 3) this.api.searchManga(search);
         if (search.length === 0) this.api.emptySearch();
       });

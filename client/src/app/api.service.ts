@@ -48,15 +48,17 @@ export class ApiService {
   }
 
   get site(): string {
-    switch(this.currentSite) {
+    switch (this.currentSite) {
       case MangaSite.ManHuaRen:
-        return "manhuaren";
+        return 'manhuaren';
       case MangaSite.ManHuaDB:
-        return "manhuadb"
+        return 'manhuadb';
       case MangaSite.ManHuaGui:
-        return "manhuagui"
+        return 'manhuagui';
+      case MangaSite.ManHuaBei:
+        return 'manhuabei';
       default:
-        return "manhuaren";
+        return 'manhuaren';
     }
   }
 
