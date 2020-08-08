@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { SearchResult } from './model/search-result';
-import { Subject, Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 import { Manga } from './model/manga';
 import { MangaIndexType } from './model/manga-index-type.enum';
 import { SseService, Message } from './sse.service';
@@ -53,6 +53,8 @@ export class ApiService {
         return "manhuaren";
       case MangaSite.ManHuaDB:
         return "manhuadb"
+      case MangaSite.ManHuaGui:
+        return "manhuagui"
       default:
         return "manhuaren";
     }

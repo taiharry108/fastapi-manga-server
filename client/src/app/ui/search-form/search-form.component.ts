@@ -7,12 +7,11 @@ import {
 } from '@angular/forms';
 import { ApiService } from 'src/app/api.service';
 import { SearchResult } from 'src/app/model/search-result';
-import { Observable, Subject, of } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import {
   takeUntil,
   debounceTime,
   distinctUntilChanged,
-  take,
 } from 'rxjs/operators';
 import { Router } from '@angular/router';
 

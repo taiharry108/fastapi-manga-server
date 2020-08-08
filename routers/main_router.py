@@ -18,7 +18,6 @@ class Manga(BaseModel):
 @router.get("/search/{site}/{search_keyword}", response_model=List[Manga])
 async def search_manga(site: MangaSiteEnum, search_keyword: str):
     manga_site = get_manga_site(site)
-    print(manga_site)
     mangas = await manga_site.search_manga(search_keyword)
     return [{"name": manga.name, "url": manga.url} for manga in mangas]
 
