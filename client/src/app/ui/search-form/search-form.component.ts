@@ -66,7 +66,7 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   suggestionOnClick(url: string) {
     const splits = url.split('/');
     const mangaPage = splits[splits.length-2];
-    console.log(mangaPage);
+    console.log(url);
     this.api.getIndexPage(mangaPage);
     this.router.navigate(['/manga-index']);
   }

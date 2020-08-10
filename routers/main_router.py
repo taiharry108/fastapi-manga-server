@@ -27,7 +27,7 @@ async def get_index(site: MangaSiteEnum, manga_page: str):
     manga_site = get_manga_site(site)
     url = get_idx_page(site, manga_page)
 
-    manga = catalog.get_manga(MangaSiteEnum.ManHuaRen, url)
+    manga = catalog.get_manga(site, url)
     if manga is None or not manga.idx_retrieved:
         print(f"going to retrieve {url}")
         manga = await manga_site.get_index_page(url)

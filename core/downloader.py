@@ -35,9 +35,19 @@ class _Downloader(object):
         self.num_workers = 2
     
     @get_resp
-    async def get(self, resp: ClientResponse) -> BeautifulSoup:
+    async def get(self, resp: ClientResponse) -> str:
         """Make a get request and return with BeautifulSoup"""
         return await resp.text()
+    
+    @get_resp
+    async def get_bytes(self, resp: ClientResponse) -> BeautifulSoup:
+        """Make a get request and return with bytes"""
+        return await resp.content.read()
+    
+    @get_resp
+    async def get_byte_soup(self, resp: ClientResponse) -> BeautifulSoup:
+        """Make a get request and return with BeautifulSoup"""
+        return BeautifulSoup(await resp.content.read(), features="html.parser")
 
     @get_resp
     async def get_soup(self, resp: ClientResponse) -> BeautifulSoup:

@@ -6,3 +6,4 @@ class MangaSiteEnum(str, Enum):
     ManHuaDB = "manhuadb"
     ManHuaGui = "manhuagui"
     ManHuaBei = "manhuabei"
+    ComicBus = "comicbus"

@@ -57,6 +57,8 @@ export class ApiService {
         return 'manhuagui';
       case MangaSite.ManHuaBei:
         return 'manhuabei';
+      case MangaSite.ComicBus:
+        return 'comicbus';
       default:
         return 'manhuaren';
     }

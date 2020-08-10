@@ -1,3 +1,4 @@
+from core.comicbus import ComicBus
 from core.manga_site import MangaSite
 from .manga_site_enum import MangaSiteEnum
 from .manhuaren import ManHuaRen
@@ -15,6 +16,8 @@ def get_manga_site(manga_site_enum: MangaSiteEnum) -> MangaSite:
         return ManHuaGui()
     elif manga_site_enum == MangaSiteEnum.ManHuaBei:
         return ManHuaBei()
+    elif manga_site_enum == MangaSiteEnum.ComicBus:
+        return ComicBus()
     return ManHuaRen()
 
 
@@ -29,4 +32,6 @@ def get_idx_page(manga_site_enum: MangaSiteEnum, manga_page: str) -> str:
         url = f"{site.url}comic/{manga_page.strip('/')}/"
     elif manga_site_enum == MangaSiteEnum.ManHuaBei:
         url = f"{site.url}manhua/{manga_page.strip('/')}/"
+    elif manga_site_enum == MangaSiteEnum.ComicBus:
+        url = f"{site.url}html/{manga_page.strip('/')}/"
     return url

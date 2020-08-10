@@ -36,8 +36,7 @@ class ManHuaBei(MangaSite):
             '漫畫唄', 'https://www.manhuabei.com/'
         )
         self.site = MangaSiteEnum.ManHuaBei
-        self.img_domain = None
-        self.get_img_domain()
+        self.img_domain = None        
 
     async def get_img_domain(self) -> str:
         """Get image domain"""
@@ -94,7 +93,6 @@ class ManHuaBei(MangaSite):
             return manga
 
         soup = await self.downloader.get_soup(page)
-        print(page)
 
         name = soup.find('div', class_='comic_deCon').find('h1').text
         manga = self.get_manga(self.site, name, page)

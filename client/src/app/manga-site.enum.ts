@@ -3,4 +3,5 @@ export enum MangaSite {
   ManHuaDB = '漫畫DB',
   ManHuaGui = '漫畫櫃',
   ManHuaBei = '漫畫唄',
+  ComicBus = '8Comic'
 }
