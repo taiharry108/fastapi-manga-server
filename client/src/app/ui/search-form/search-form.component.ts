@@ -17,6 +17,7 @@ import { Router } from '@angular/router';
 
 declare var $: any;
 
+
 @Component({
   selector: 'app-search-form',
   templateUrl: './search-form.component.html',

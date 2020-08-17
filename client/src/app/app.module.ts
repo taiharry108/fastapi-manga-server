@@ -10,6 +10,7 @@ import { SearchFormComponent } from './ui/search-form/search-form.component';
 import { ClickOutsideDirective } from './common/click-outside.directive';
 import { MangaIndexComponent } from './ui/manga-index/manga-index.component';
 import { MainComponent } from './ui/main/main.component';
+import { GoogleAuthComponent } from './ui/auth/google-auth/google-auth.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { MainComponent } from './ui/main/main.component';
     SearchFormComponent,
     ClickOutsideDirective,
     MangaIndexComponent,
-    MainComponent
+    MainComponent,
+    GoogleAuthComponent
   ],
   imports: [
     BrowserModule,

@@ -35,14 +35,12 @@
           id="siteState"
           class="site-select form-control form-control-lg ml-2"
           formControlName="site"
-        >          
-          <option
-            *ngFor="let name of siteNames"
-            [ngValue]="name"
-            >{{ name }}</option
-          >
+        >
+          <option *ngFor="let name of siteNames" [ngValue]="name">{{
+            name
+          }}</option>
         </select>
       </form>
     </div>
-  </div>
+  </div>  
 </div>

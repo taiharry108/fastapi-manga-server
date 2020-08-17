@@ -130,6 +130,8 @@ class ComicBus(MangaSite):
 
         for m_type, table_id in zip([MangaIndexTypeEnum.VOLUME, MangaIndexTypeEnum.CHAPTER], ["rp_ctl04_0_dl_0", "rp_ctl05_0_dl_0"]):
             table = soup.find("table", id=table_id)
+            if table is None:
+                continue
             class_name = "Vol" if m_type == MangaIndexTypeEnum.VOLUME else "Ch"
 
             a_list = table.find_all("a", {"class": class_name})

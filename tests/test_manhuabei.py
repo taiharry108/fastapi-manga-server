@@ -6,7 +6,7 @@ from core.utils import enter_session
 import json
 
 
-class TestManHuaDui(aiounittest.AsyncTestCase):
+class TestManHuaBei(aiounittest.AsyncTestCase):
     def setUp(self):
         self.downloader = Downloader(None)
         self.site = ManHuaBei()

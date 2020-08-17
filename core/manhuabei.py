@@ -9,34 +9,38 @@ from Crypto.Cipher import AES
 from urllib import parse
 
 
-def decrypt(encrypted) -> str:
-    encrypted = base64.b64decode(encrypted)
-    passphrase = "1739ZAQ12345bbG1"
-    iv = "ABCDEF1G341234bb"
-    aes = AES.new(passphrase.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
 
-    decrypted = aes.decrypt(encrypted)
-    return decrypted.strip().decode('utf8')
-
-
-def decrypt_pages(s):
-    decrypted = decrypt(s)
-    idx = decrypted.find('"]')
-    if idx != -1:
-        decrypted = decrypted[:idx+2]
-        pages = json.loads(decrypted)
-    else:
-        pages = []
-    return pages
 
 
 class ManHuaBei(MangaSite):
+
+    def decrypt(self, encrypted) -> str:
+        encrypted = base64.b64decode(encrypted)
+        passphrase = self.config['passphase']
+        iv = self.config['iv']
+        aes = AES.new(passphrase.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
+
+        decrypted = aes.decrypt(encrypted)
+        return decrypted.strip().decode('utf8')
+
+
+    def decrypt_pages(self, s):
+        decrypted = self.decrypt(s)
+        idx = decrypted.find('"]')
+        if idx != -1:
+            decrypted = decrypted[:idx+2]
+            pages = json.loads(decrypted)
+        else:
+            pages = []
+        return pages
     def __init__(self):
         super(ManHuaBei, self).__init__(
             '漫畫唄', 'https://www.manhuabei.com/'
         )
         self.site = MangaSiteEnum.ManHuaBei
-        self.img_domain = None        
+        self.img_domain = None  
+        with open('config/manhuabei_decrypt_config.json') as f:
+            self.config = json.load(f)
 
     async def get_img_domain(self) -> str:
         """Get image domain"""
@@ -130,7 +134,7 @@ class ManHuaBei(MangaSite):
 
     async def get_page_urls(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> List[str]:
         await self.get_img_domain()
-        chapter = manga.get_chapter(m_type, idx)
+        chapter = manga.get_chapter(m_type, idx)        
         soup = await self.downloader.get_soup(chapter.page_url)
 
         pattern = re.compile(
@@ -144,7 +148,7 @@ class ManHuaBei(MangaSite):
             if match:
                 break
         if match:
-            pages = decrypt_pages(match.group(1))
+            pages = self.decrypt_pages(match.group(1))
             chap_path = match.group(2).strip('/')
 
             pages = [self.get_page_url(page, chap_path) for page in pages]
