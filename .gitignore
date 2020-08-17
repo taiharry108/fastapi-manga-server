@@ -141,3 +141,4 @@ cython_debug/
 ignore*
 *.exe
 *.db
+client_secret*
