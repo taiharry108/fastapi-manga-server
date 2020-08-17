@@ -1,11 +1,15 @@
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from routers import main_router, google_auth
 from core.downloader import Downloader
 from fastapi.logger import logger
 from core.singleton_aiohttp import SingletonAiohttp
-from starlette.middleware.sessions import SessionMiddleware
+from database import models
+from database.database import engine
+
+models.Base.metadata.create_all(bind=engine)
+
+
 
 fastAPI_logger = logger  # convenient name
 
@@ -22,9 +26,6 @@ async def on_shutdown():
     await SingletonAiohttp.close_aiohttp_client()
 
 app = FastAPI(on_startup=[on_start_up], on_shutdown=[on_shutdown])
-# app.add_middleware(SessionMiddleware, secret_key="secret-string")
-
-# app.mount('/static', StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
