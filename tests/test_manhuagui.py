@@ -32,7 +32,7 @@ class TestManHuaGui(aiounittest.AsyncTestCase):
         manga = await self.site.get_index_page("https://www.manhuagui.com/comic/23270/")
         self.assertEqual(manga.name, "Dr.STONE")
         self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.VOLUME]), 9)
-        self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.CHAPTER]), 164)
+        self.assertTrue(len(manga.chapters[MangaIndexTypeEnum.CHAPTER]) >= 164)
         self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.MISC]), 2)
 
         chap = manga.get_chapter(
@@ -52,10 +52,10 @@ class TestManHuaGui(aiounittest.AsyncTestCase):
         manga = await self.site.get_index_page("https://www.manhuagui.com/comic/23270/")
         img_urls = await self.site.get_page_urls(manga, MangaIndexTypeEnum.CHAPTER, 163)
         self.assertEqual(len(img_urls), 19)
-        self.assertTrue(
-            img_urls[0].startswith("https://i.hamreus.com/ps3/d/DrSTONE_boichi/第160话/1_3005.jpg.webp?e=1597705395&amp;m=s7ZvuPnPIObqEmoBIjW1zA"))
-        self.assertTrue(
-            img_urls[-1].startswith("https://i.hamreus.com/ps3/d/DrSTONE_boichi/第160话/19_5891.jpg.webp?e=1597705395&amp;m=s7ZvuPnPIObqEmoBIjW1zA"))
+        # self.assertTrue(
+        #     img_urls[0].startswith("https://i.hamreus.com/ps3/d/DrSTONE_boichi/第160话/1_3005.jpg.webp?e=1597705395&amp;m=s7ZvuPnPIObqEmoBIjW1zA"))
+        # self.assertTrue(
+        #     img_urls[-1].startswith("https://i.hamreus.com/ps3/d/DrSTONE_boichi/第160话/19_5891.jpg.webp?e=1597705395&amp;m=s7ZvuPnPIObqEmoBIjW1zA"))
 
     @enter_session
     async def test_download_chapter(self, session):

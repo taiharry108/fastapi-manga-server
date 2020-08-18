@@ -1,5 +1,6 @@
 from typing import List, Union, AsyncIterable
-from .manga import Manga, MangaIndexTypeEnum
+from .manga import Manga
+from .manga_index_type_enum import MangaIndexTypeEnum
 from .downloader import Downloader
 from .manga_catalog import MangaCatalog
 from .manga_site_enum import MangaSiteEnum
@@ -17,7 +18,6 @@ class MangaSite(object):
     def __init__(self, name, url):
         self._name = name
         self._url = url
-        # self._manga_dict = {}
         self.downloader = Downloader()
         self.__catalog = MangaCatalog()
 

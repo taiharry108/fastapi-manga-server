@@ -2,8 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ApiService } from 'src/app/api.service';
 import { Observable, Subject } from 'rxjs';
 import { Manga } from 'src/app/model/manga';
-import { takeUntil } from 'rxjs/operators';
-import { Chapter } from 'src/app/model/chapter';
 import { MangaIndexType } from 'src/app/model/manga-index-type.enum';
 
 declare var $: any;

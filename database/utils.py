@@ -17,7 +17,19 @@ SECRET_KEY = config('SECRET_KEY')
 ALGORITHM = config('ALGORITHM')
 
 
-def get_db():
+class SQLAlchemyDBConnection(object):
+    """SQLAlchemy database connection"""
+
+    def __enter__(self):
+        self.session = SessionLocal()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.session.close()
+
+
+
+def get_db() -> Session:
     db = SessionLocal()
     try:
         yield db

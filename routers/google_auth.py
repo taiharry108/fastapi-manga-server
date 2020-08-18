@@ -15,7 +15,7 @@ router = APIRouter()
 config = Config('.env')
 
 COOKIE_AUTHORIZATION_NAME = "Authorization"
-COOKIE_DOMAIN = "127.0.0.1"
+COOKIE_DOMAIN = "localhost"
 
 
 @router.get('/logout', tags=["security"])

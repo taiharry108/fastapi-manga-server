@@ -5,6 +5,6 @@ export interface Manga {
     url: string;
     chapters: Map<string, Chapter[]>;
     finished: boolean;
-    thumImg: string;
-    lastUpdate: string;
+    thum_img: string;
+    last_update: string;
 }

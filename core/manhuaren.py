@@ -82,7 +82,7 @@ class ManHuaRen(MangaSite):
         last_update = div.find(
             'span', class_='detail-list-title-3').text.strip()
         finished = div.find('span', class_='detail-list-title-1').text == '已完结'
-        thum_img = soup.find('img', class_='detail-main-bg').get('src')
+        thum_img = soup.find('img', class_='detail-main-bg').get('src')        
 
         if not thum_img.startswith('http'):
             thum_img = self.url + thum_img.lstrip('/')

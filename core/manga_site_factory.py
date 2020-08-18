@@ -1,22 +1,24 @@
-from core.comicbus import ComicBus
-from core.manga_site import MangaSite
+
+from .manga_site import MangaSite
 from .manga_site_enum import MangaSiteEnum
-from .manhuaren import ManHuaRen
-from .manhuadb import ManHuaDB
-from .manhuagui import ManHuaGui
-from .manhuabei import ManHuaBei
+
 
 
 def get_manga_site(manga_site_enum: MangaSiteEnum) -> MangaSite:
+    from .manhuaren import ManHuaRen
     if manga_site_enum == MangaSiteEnum.ManHuaRen:
         return ManHuaRen()
     elif manga_site_enum == MangaSiteEnum.ManHuaDB:
+        from .manhuadb import ManHuaDB
         return ManHuaDB()
     elif manga_site_enum == MangaSiteEnum.ManHuaGui:
+        from .manhuagui import ManHuaGui
         return ManHuaGui()
     elif manga_site_enum == MangaSiteEnum.ManHuaBei:
+        from .manhuabei import ManHuaBei
         return ManHuaBei()
     elif manga_site_enum == MangaSiteEnum.ComicBus:
+        from .comicbus import ComicBus
         return ComicBus()
     return ManHuaRen()
 

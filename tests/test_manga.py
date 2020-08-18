@@ -4,7 +4,7 @@ from core.chapter import Chapter
 
 def get_sample_manga():
     manga_name = "Test Name"
-    manga_url = "Test Url"
+    manga_url = "https://www.test.com"
     return Manga(name=manga_name, url=manga_url)
 
 class TestManga(unittest.TestCase):
@@ -12,20 +12,20 @@ class TestManga(unittest.TestCase):
     def setUp(self):
         self.manga = get_sample_manga()
         self.chapter_title = 'Test Title'
-        self.chapter_page_url = "Test Page Url"
+        self.chapter_page_url = "https://www.testchapter.com"
 
     def test_create_manga(self):
         """Test create manga"""
         manga = get_sample_manga()
         self.assertEqual(manga.name, "Test Name")
-        self.assertEqual(manga.url, "Test Url")
+        self.assertEqual(manga.url, "https://www.test.com")
         self.assertIsInstance(manga.chapters, dict)
         self.assertEqual(len(manga.chapters), 3)
         for chapter_list in manga.chapters.values():
             self.assertIsInstance(chapter_list, list)
             self.assertEqual(len(chapter_list), 0)
         self.assertIsNone(manga.last_update)
-        self.assertIsNone(manga.is_finished)
+        self.assertIsNone(manga.finished)
         self.assertIsNone(manga.thum_img)
     
     def test_add_chapter(self):

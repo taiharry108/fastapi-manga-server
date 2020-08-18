@@ -1,6 +1,8 @@
-from typing import List, Optional
+from core.manga_index_type_enum import MangaIndexTypeEnum
+from datetime import datetime
+from typing import Dict, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 
 class Token(BaseModel):
@@ -44,3 +46,11 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class MangaSite(BaseModel):
+    name: str
+    url: HttpUrl
+
+
+

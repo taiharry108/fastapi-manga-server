@@ -7,6 +7,7 @@ import { Manga } from './model/manga';
 import { MangaIndexType } from './model/manga-index-type.enum';
 import { SseService, Message } from './sse.service';
 import { MangaSite } from './manga-site.enum';
+import { Auth } from './model/auth';
 
 @Injectable({
   providedIn: 'root',
@@ -36,7 +37,7 @@ export class ApiService {
 
   get allSiteNames(): string[] {
     const keys = Object.keys(MangaSite);
-    return keys.map(key => MangaSite[key]);
+    return keys.map((key) => MangaSite[key]);
   }
 
   set currentSite(siteVal: MangaSite) {
@@ -64,6 +65,25 @@ export class ApiService {
     }
   }
 
+  logInToServer(idToken: string) {
+    const url = `${this.serverUrl}user/login`;
+    console.log(idToken);
+    this.http
+      .post<Auth>(url, idToken, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      })
+      .subscribe((result) => {
+        this.http
+          .get(`${this.serverUrl}user/me`)
+          .subscribe((result) => console.log(result));
+      });
+  }
+
+  logoutFromServer() {
+    const url = `${this.serverUrl}user/logout`;
+    this.http.get(url).subscribe((result) => console.log(result));
+  }
+
   searchManga(keyword: string) {
     const url = `${this.serverUrl}search/${this.site}/${keyword}`;
 
@@ -82,7 +102,7 @@ export class ApiService {
 
   getImages(mangaUrl: string, mType: MangaIndexType, idx: number) {
     const splits = mangaUrl.split('/');
-    const mangaPage = splits[splits.length - 2];    
+    const mangaPage = splits[splits.length - 2];
     const url = `${this.serverUrl}chapter/${this.site}/${mangaPage}?idx=${idx}&m_type_int=${mType}`;
     console.log(url);
     this.sseService.getServerSentEvent(url).subscribe((message) => {

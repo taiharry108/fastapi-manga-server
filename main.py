@@ -43,6 +43,6 @@ app.include_router(
 
 app.include_router(
     google_auth.router,
-    prefix="/user",
+    prefix="/api/user",
     responses={404: {"description": "Not Found"}}
 )
