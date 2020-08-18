@@ -5,10 +5,10 @@ from starlette.responses import JSONResponse
 from starlette.config import Config
 
 from database import schemas
-from database.utils import get_current_active_user, get_db
+from database.utils import get_db
 
 from sqlalchemy.orm import Session
-from auth import utils
+from auth.utils import create_access_token
 
 router = APIRouter()
 
@@ -16,6 +16,7 @@ config = Config('.env')
 
 COOKIE_AUTHORIZATION_NAME = "Authorization"
 COOKIE_DOMAIN = "localhost"
+# COOKIE_DOMAIN = "127.0.0.1"
 
 
 @router.get('/logout', tags=["security"])
@@ -27,7 +28,7 @@ async def logout():
 
 @router.post("/login", response_model=schemas.Token, tags=["security"])
 async def login(request: Request = None, db: Session = Depends(get_db)):
-    token = await utils.create_access_token(request, db)
+    token = await create_access_token(request, db)
     response = JSONResponse({"access_token": token, "token_type": "bearer"})
 
     response.set_cookie(
@@ -41,12 +42,3 @@ async def login(request: Request = None, db: Session = Depends(get_db)):
     return response
 
 
-@router.get("/secure_endpoint", tags=["security"])
-async def get_open_api_endpoint(current_user: schemas.User = Depends(get_current_active_user)):
-    response = "How cool is this?"
-    return response
-
-
-@router.get("/me", response_model=schemas.User, tags=["users"])
-async def read_users_me(current_user: schemas.User = Depends(get_current_active_user)):
-    return current_user

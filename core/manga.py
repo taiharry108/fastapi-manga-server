@@ -6,8 +6,12 @@ from datetime import datetime
 
 
 class MangaBase(BaseModel):
+    id: int
     name: str
     url: HttpUrl
+
+    class Config:
+        orm_mode = True
 
 
 class Manga(MangaBase):
@@ -32,3 +36,6 @@ class Manga(MangaBase):
         self.last_update = datetime.now() if create_last_update else meta_data.get('last_update')
         self.finished = meta_data.get('finished')
         self.thum_img = meta_data.get('thum_img')
+
+    class Config:
+        orm_mode = True

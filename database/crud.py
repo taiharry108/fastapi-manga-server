@@ -101,7 +101,8 @@ def create_chapters(db: Session, manga: Manga) -> bool:
     db_chaps = []
     for m_type, chapters in manga.chapters.items():
         for chapter in chapters:
-            db_chaps.append(models.Chapter(**chapter.dict(), manga_id=manga_id, type=m_type.value))
+            db_chaps.append(models.Chapter(**chapter.dict(),
+                                           manga_id=manga_id, type=m_type.value))
     db.bulk_save_objects(db_chaps)
     db.commit()
     return True
@@ -112,3 +113,17 @@ def delete_all(db: Session) -> bool:
     db.query(models.Manga).delete()
     db.commit()
     return True
+
+
+def add_fav_manga(db: Session, manga_id: int, user_id: int) -> bool:
+    db_manga = db.query(models.Manga).get(manga_id)
+    db_user = db.query(models.User).get(user_id)
+    db_user.fav_mangas.append(db_manga)
+    db.commit()
+    return True
+
+
+def get_fav_mangas(db: Session, user_id: int) -> List[models.Manga]:
+    db_user = db.query(models.User).get(user_id)
+    fav_mangas = db_user.fav_mangas    
+    return fav_mangas

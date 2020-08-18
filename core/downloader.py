@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 import aiohttp
 import asyncio
 from typing import Any, AsyncIterable, Callable, Dict, List, Tuple, Union
-from core.utils import SingletonDecorator
+from commons.utils import SingletonDecorator
 from pathlib import Path
 import uuid
 

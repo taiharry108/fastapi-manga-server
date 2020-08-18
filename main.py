@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import main_router, google_auth
+from routers import main_router, google_auth, user
 from core.downloader import Downloader
 from fastapi.logger import logger
 from core.singleton_aiohttp import SingletonAiohttp
@@ -8,7 +8,6 @@ from database import models
 from database.database import engine
 
 models.Base.metadata.create_all(bind=engine)
-
 
 
 fastAPI_logger = logger  # convenient name
@@ -43,6 +42,12 @@ app.include_router(
 
 app.include_router(
     google_auth.router,
+    prefix="/api/auth",
+    responses={404: {"description": "Not Found"}}
+)
+
+app.include_router(
+    user.router,
     prefix="/api/user",
     responses={404: {"description": "Not Found"}}
 )

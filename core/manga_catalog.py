@@ -1,7 +1,7 @@
 from database import models, crud, utils
 from .manga_site_enum import MangaSiteEnum
 from .manga import Manga
-from .utils import SingletonDecorator
+from commons.utils import SingletonDecorator, construct_manga
 from typing import Union
 
 
@@ -9,28 +9,7 @@ from typing import Union
 class MangaCatalog(object):
     def __init__(self):
         # self.__data = {site: {} for site in MangaSiteEnum}
-        pass
-
-    def construct_manga(self, manga: models.Manga) -> Manga:
-        result = Manga(name=manga.name, url=manga.url)
-
-        idx_retrieved = False
-
-        for chapter in manga.chapters:
-            m_type = chapter.type
-            result.add_chapter(m_type, chapter.title, chapter.page_url)
-            idx_retrieved = True
-        
-        if idx_retrieved:
-            result.retreived_idx_page()
-                
-        result.set_meta_data({
-            'finished': manga.finished,
-            'last_update': manga.last_update,
-            'thum_img': manga.thum_img
-        }, create_last_update=False)
-
-        return result
+        pass    
 
     def get_manga(self, site: MangaSiteEnum, manga_url: str, manga_name: str = None) -> Union[Manga, None]:
         """Get manga from manga url"""
@@ -44,5 +23,5 @@ class MangaCatalog(object):
                         db, Manga(name=manga_name, url=manga_url), site)
                 else:
                     return None
-            return self.construct_manga(manga)
+            return construct_manga(manga)
 

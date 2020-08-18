@@ -66,7 +66,7 @@ export class ApiService {
   }
 
   logInToServer(idToken: string) {
-    const url = `${this.serverUrl}user/login`;
+    const url = `${this.serverUrl}auth/login`;
     console.log(idToken);
     this.http
       .post<Auth>(url, idToken, {
@@ -80,7 +80,7 @@ export class ApiService {
   }
 
   logoutFromServer() {
-    const url = `${this.serverUrl}user/logout`;
+    const url = `${this.serverUrl}auth/logout`;
     this.http.get(url).subscribe((result) => console.log(result));
   }
 

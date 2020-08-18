@@ -1,7 +1,7 @@
 from database import crud
 from .manga_site_enum import MangaSiteEnum
 from .manga import Manga
-from .utils import SingletonDecorator
+from commons.utils import SingletonDecorator
 from typing import Union
 from sqlalchemy.orm import Session
 

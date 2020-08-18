@@ -10,7 +10,6 @@ from database.crud import get_user_by_email
 
 import jwt
 from sqlalchemy.orm import Session
-
 oauth2_scheme = OAuth2PasswordBearerCookie(tokenUrl="/token")
 config = Config('.env')
 SECRET_KEY = config('SECRET_KEY')
