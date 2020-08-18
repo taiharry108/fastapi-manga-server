@@ -3,24 +3,23 @@ from .manga_site import MangaSite
 from .manga_site_enum import MangaSiteEnum
 from .manga import Manga, MangaIndexTypeEnum
 import re
-import json
-import base64
 from urllib.parse import quote
 
 
 def decode_to_big5(s: str):
-    s = s.strip().encode("unicode-escape").decode()    
+    s = s.strip().encode("unicode-escape").decode()
     idx = 0
     result = []
-    
+
     while idx < len(s):
         if s[idx:(idx+2)] == "\\x":
             b = bytes.fromhex(s[idx + 2:(idx+4)])
             idx += 4
-            
-            result.append(b[0])            
+
+            result.append(b[0])
         elif s[idx:(idx + 2)].startswith('\\u'):
-            result.extend(s[idx:(idx + 6)].encode().decode('unicode-escape').encode('big5'))
+            result.extend(
+                s[idx:(idx + 6)].encode().decode('unicode-escape').encode('big5'))
             idx += 6
         else:
             result.append(ord(s[idx]))
@@ -63,7 +62,7 @@ def get_urls(s: str, ch: int, manga_id: int,  y: int = 46) -> List[str]:
     for i in range(loop_num):
         tmp_dict = {
             key: lc(su(cs, i * y + value[0], value[1])) for key, value in d.items()}
-        if tmp_dict[ch_str] == ch:            
+        if tmp_dict[ch_str] == ch:
             num_page = tmp_dict[ps_str]
             for page_i in range(1, num_page + 1):
                 url = f"https://img{su(tmp_dict[first_str], 0, 1)}.8comic.com/{su(tmp_dict[first_str], 1, 1)}/{manga_id}/{ch}/{str(page_i).zfill(3)}_{su(tmp_dict[last_str], mm(page_i), 3)}.jpg"
@@ -115,17 +114,11 @@ class ComicBus(MangaSite):
         return {'last_update': last_update, 'finished': finished, 'thum_img': thum_img}
 
     async def get_index_page(self, page: str) -> Manga:
-
-        manga = self.get_manga(self.site, None, page)
-
-        if manga is not None and manga.idx_retrieved:
-            return manga
-        print(page)
         soup = await self.downloader.get_byte_soup(page)
 
         name = decode_to_big5(soup.find(
             'font', {"style": "font-size:10pt; letter-spacing:1px"}).text)
-        
+
         manga = self.get_manga(self.site, name, page)
 
         for m_type, table_id in zip([MangaIndexTypeEnum.VOLUME, MangaIndexTypeEnum.CHAPTER], ["rp_ctl04_0_dl_0", "rp_ctl05_0_dl_0"]):
@@ -141,12 +134,12 @@ class ComicBus(MangaSite):
                 if not url.startswith('http'):
                     url = f'https://comicbus.live/online/a-{url}'
                 title = decode_to_big5(a.text)
-                
+
                 manga.add_chapter(m_type=m_type, title=title, page_url=url)
 
         meta_dict = self.get_meta_data(soup)
-        thum_img_b = await self.downloader.get_img(meta_dict['thum_img'])
-        meta_dict['thum_img'] = base64.b64encode(thum_img_b).decode("utf-8")
+        thum_img_path = await self.downloader.get_img(meta_dict['thum_img'], download=True)
+        meta_dict['thum_img'] = thum_img_path
 
         manga.set_meta_data(meta_dict)
         manga.retreived_idx_page()

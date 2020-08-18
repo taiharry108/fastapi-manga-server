@@ -20,6 +20,7 @@ class MangaSite(object):
         self._url = url
         self.downloader = Downloader()
         self.__catalog = MangaCatalog()
+        
 
     def get_manga(self, site: MangaSiteEnum, manga_name: Union[str, None], manga_url: str) -> Manga:
         return self.__catalog.get_manga(site, manga_url, manga_name)

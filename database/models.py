@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Boolean, Enum
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Enum
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -43,7 +43,7 @@ class Manga(Base):
     url = Column(String, index=True)
     last_update = Column(DateTime, index=True)
     finished = Column(Boolean)
-    
+    thum_img = Column(String, index=True)
     chapters = relationship("Chapter", back_populates="manga")
     manga_site_id = Column(Integer, ForeignKey("manga_sites.id"))
     manga_site = relationship("MangaSite", back_populates="mangas")

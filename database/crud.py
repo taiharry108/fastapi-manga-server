@@ -52,6 +52,7 @@ def update_manga_meta(db: Session, manga: Manga) -> models.Manga:
     db_manga = get_manga_by_url(db, manga.url)
     db_manga.finished = manga.finished
     db_manga.last_update = manga.last_update
+    db_manga.thum_img = manga.thum_img
     db.commit()
     return db_manga
 
@@ -102,5 +103,12 @@ def create_chapters(db: Session, manga: Manga) -> bool:
         for chapter in chapters:
             db_chaps.append(models.Chapter(**chapter.dict(), manga_id=manga_id, type=m_type.value))
     db.bulk_save_objects(db_chaps)
+    db.commit()
+    return True
+
+
+def delete_all(db: Session) -> bool:
+    db.query(models.Chapter).delete()
+    db.query(models.Manga).delete()
     db.commit()
     return True

@@ -142,3 +142,4 @@ ignore*
 *.exe
 *.db
 client_secret*
+images/

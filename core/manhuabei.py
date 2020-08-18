@@ -9,20 +9,17 @@ from Crypto.Cipher import AES
 from urllib import parse
 
 
-
-
-
 class ManHuaBei(MangaSite):
 
     def decrypt(self, encrypted) -> str:
         encrypted = base64.b64decode(encrypted)
         passphrase = self.config['passphase']
         iv = self.config['iv']
-        aes = AES.new(passphrase.encode('utf-8'), AES.MODE_CBC, iv.encode('utf-8'))
+        aes = AES.new(passphrase.encode('utf-8'),
+                      AES.MODE_CBC, iv.encode('utf-8'))
 
         decrypted = aes.decrypt(encrypted)
         return decrypted.strip().decode('utf8')
-
 
     def decrypt_pages(self, s):
         decrypted = self.decrypt(s)
@@ -33,12 +30,13 @@ class ManHuaBei(MangaSite):
         else:
             pages = []
         return pages
+
     def __init__(self):
         super(ManHuaBei, self).__init__(
             '漫畫唄', 'https://www.manhuabei.com/'
         )
         self.site = MangaSiteEnum.ManHuaBei
-        self.img_domain = None  
+        self.img_domain = None
         with open('config/manhuabei_decrypt_config.json') as f:
             self.config = json.load(f)
 
@@ -91,11 +89,6 @@ class ManHuaBei(MangaSite):
         return {'last_update': last_update, 'finished': finished, 'thum_img': thum_img}
 
     async def get_index_page(self, page: str) -> Manga:
-        manga = self.get_manga(self.site, None, page)
-
-        if manga is not None and manga.idx_retrieved:
-            return manga
-
         soup = await self.downloader.get_soup(page)
 
         name = soup.find('div', class_='comic_deCon').find('h1').text
@@ -115,8 +108,8 @@ class ManHuaBei(MangaSite):
                 manga.add_chapter(m_type=m_type, title=title, page_url=url)
 
         meta_dict = self.get_meta_data(soup)
-        thum_img_b = await self.downloader.get_img(meta_dict['thum_img'])
-        meta_dict['thum_img'] = base64.b64encode(thum_img_b).decode("utf-8")
+        thum_img_path = await self.downloader.get_img(meta_dict['thum_img'], download=True)
+        meta_dict['thum_img'] = thum_img_path
         manga.set_meta_data(meta_dict)
         manga.retreived_idx_page()
         return manga
@@ -134,7 +127,7 @@ class ManHuaBei(MangaSite):
 
     async def get_page_urls(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> List[str]:
         await self.get_img_domain()
-        chapter = manga.get_chapter(m_type, idx)        
+        chapter = manga.get_chapter(m_type, idx)
         soup = await self.downloader.get_soup(chapter.page_url)
 
         pattern = re.compile(

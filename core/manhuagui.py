@@ -1,4 +1,3 @@
-import base64
 from typing import List
 from .manga_site import MangaSite
 from .manga_site_enum import MangaSiteEnum
@@ -105,11 +104,6 @@ class ManHuaGui(MangaSite):
                 type_ = MangaIndexTypeEnum.MISC
             return type_
 
-        manga = self.get_manga(self.site, None, page)
-
-        if manga is not None and manga.idx_retrieved:
-            return manga
-
         soup = await self.downloader.get_soup(page)
 
         name = soup.find('div', class_='book-title').find('h1').text
@@ -130,8 +124,8 @@ class ManHuaGui(MangaSite):
                     manga.add_chapter(m_type=m_type, title=title, page_url=url)
         
         meta_dict = self.get_meta_data(soup)
-        thum_img_b = await self.downloader.get_img(meta_dict['thum_img'])
-        meta_dict['thum_img'] = base64.b64encode(thum_img_b).decode("utf-8")
+        thum_img_path = await self.downloader.get_img(meta_dict['thum_img'], download=True)
+        meta_dict['thum_img'] = thum_img_path
         manga.set_meta_data(meta_dict)
         manga.retreived_idx_page()
         return manga

@@ -23,10 +23,12 @@ class MangaCatalog(object):
         
         if idx_retrieved:
             result.retreived_idx_page()
-
+                
         result.set_meta_data({
             'finished': manga.finished,
-        })
+            'last_update': manga.last_update,
+            'thum_img': manga.thum_img
+        }, create_last_update=False)
 
         return result
 

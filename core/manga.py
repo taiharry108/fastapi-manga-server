@@ -4,6 +4,7 @@ from .manga_index_type_enum import MangaIndexTypeEnum
 from pydantic import BaseModel, HttpUrl
 from datetime import datetime
 
+
 class MangaBase(BaseModel):
     name: str
     url: HttpUrl
@@ -27,7 +28,7 @@ class Manga(MangaBase):
     def retreived_idx_page(self):
         self.idx_retrieved = True
 
-    def set_meta_data(self, meta_data: dict):
-        self.last_update = datetime.now()
+    def set_meta_data(self, meta_data: dict, create_last_update=True):
+        self.last_update = datetime.now() if create_last_update else meta_data.get('last_update')
         self.finished = meta_data.get('finished')
         self.thum_img = meta_data.get('thum_img')

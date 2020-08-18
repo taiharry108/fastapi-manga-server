@@ -4,8 +4,11 @@ from aiohttp.client_reqrep import ClientResponse
 from bs4 import BeautifulSoup
 import aiohttp
 import asyncio
-from typing import Any, AsyncIterable, Callable, Dict, List, Union
+from typing import Any, AsyncIterable, Callable, Dict, List, Tuple, Union
 from core.utils import SingletonDecorator
+from pathlib import Path
+import uuid
+
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
@@ -15,13 +18,13 @@ HEADERS = {
 
 def get_resp(func: Callable) -> Callable:
     @wraps(func)
-    async def wrapped(self: "_Downloader", url: str, additional_headers: Dict[str, str] = {}):
+    async def wrapped(self: "_Downloader", url: str, additional_headers: Dict[str, str] = {}, **kwargs):
         headers = {}
         headers.update(additional_headers)
-        headers.update(HEADERS)        
+        headers.update(HEADERS)
         async with self.session.get(url, headers=headers) as resp:
             if resp.status == 200:
-                return await func(self, resp)
+                return await func(self, resp, **kwargs)
             else:
                 raise RuntimeError(f"response status code: {resp.status}")
     return wrapped
@@ -32,17 +35,18 @@ class _Downloader(object):
     def __init__(self, session: aiohttp.ClientSession):
         self.session = session
         self.num_workers = 2
-    
+        self.__download_dir = Path('./images')
+
     @get_resp
     async def get(self, resp: ClientResponse) -> str:
         """Make a get request and return with BeautifulSoup"""
         return await resp.text()
-    
+
     @get_resp
     async def get_bytes(self, resp: ClientResponse) -> BeautifulSoup:
         """Make a get request and return with bytes"""
         return await resp.content.read()
-    
+
     @get_resp
     async def get_byte_soup(self, resp: ClientResponse) -> BeautifulSoup:
         """Make a get request and return with BeautifulSoup"""
@@ -59,8 +63,21 @@ class _Downloader(object):
         return await resp.json()
 
     @get_resp
-    async def get_img(self, resp: ClientResponse) -> bytes:
-        return await resp.content.read()
+    async def get_img(self, resp: ClientResponse, download: bool =  False) -> Union[bytes, str]:
+        b = await resp.content.read()
+        if download:
+            content_type = resp.content_type
+            if content_type.startswith('image'):
+                file_path = self.__download_dir / \
+                    f'{uuid.uuid4()}.{content_type.split("/")[-1]}'
+                with open(file_path, 'wb') as img_f:
+                    img_f.write(b)
+                return str(file_path)
+
+            else:
+                return b
+        else:
+            return b
 
     async def get_images(self, urls: List[str], referer: str) -> AsyncIterable[Dict[str, Any]]:
         """Request images and return async iterable dictionary with image bytes and index"""
