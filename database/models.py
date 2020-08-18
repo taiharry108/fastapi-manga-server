@@ -41,7 +41,7 @@ class Manga(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     url = Column(String, index=True)
-    # last_update = Column(DateTime, index=True)
+    last_update = Column(DateTime, index=True)
     finished = Column(Boolean)
     
     chapters = relationship("Chapter", back_populates="manga")

@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import List
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
@@ -27,7 +28,7 @@ async def get_index(site: MangaSiteEnum, manga_page: str, db: Session = Depends(
     manga_site = get_manga_site(site)
     url = get_idx_page(site, manga_page)
     manga = catalog.get_manga(site, url)
-    if manga is None or not manga.idx_retrieved:
+    if manga is None or not manga.idx_retrieved or manga.last_update + timedelta(days=3) < datetime.now():
         manga = await manga_site.get_index_page(url)
         crud.create_chapters(db, manga)
         crud.update_manga_meta(db, manga)

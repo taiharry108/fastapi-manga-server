@@ -13,7 +13,7 @@ class Manga(MangaBase):
 
     chapters: Dict[MangaIndexTypeEnum, List[Chapter]] = {
         m_site: [] for m_site in list(MangaIndexTypeEnum)}
-    # last_update: Optional[datetime]
+    last_update: Optional[datetime]
     finished: Optional[bool]
     thum_img: Optional[str]
     idx_retrieved: Optional[bool]
@@ -28,6 +28,6 @@ class Manga(MangaBase):
         self.idx_retrieved = True
 
     def set_meta_data(self, meta_data: dict):
-        # self.last_update = meta_data.get('last_update')
+        self.last_update = datetime.now()
         self.finished = meta_data.get('finished')
         self.thum_img = meta_data.get('thum_img')

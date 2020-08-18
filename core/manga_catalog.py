@@ -25,7 +25,6 @@ class MangaCatalog(object):
             result.retreived_idx_page()
 
         result.set_meta_data({
-            # 'last_update': manga.last_update,
             'finished': manga.finished,
         })
 

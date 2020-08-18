@@ -51,6 +51,7 @@ def get_manga_by_url(db: Session, url: str) -> models.Manga:
 def update_manga_meta(db: Session, manga: Manga) -> models.Manga:
     db_manga = get_manga_by_url(db, manga.url)
     db_manga.finished = manga.finished
+    db_manga.last_update = manga.last_update
     db.commit()
     return db_manga
 
