@@ -17,10 +17,9 @@ class MangaCatalog(object):
             db = conn.session
             manga = crud.get_manga_by_url(db, manga_url)
             if manga is None:
-                if manga_name is not None:
-
+                if manga_name is not None:                    
                     manga = crud.create_manga(
-                        db, Manga(name=manga_name, url=manga_url), site)
+                        db, manga_name, manga_url, site)
                 else:
                     return None
             return construct_manga(manga)

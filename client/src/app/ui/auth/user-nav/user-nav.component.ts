@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { GoogleAuthService } from 'src/app/auth/google-auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-user-nav',
@@ -7,9 +9,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UserNavComponent implements OnInit {
 
-  constructor() { }
+  imgUrl$: Observable<string>;
+  imgUrl: string;
+
+  constructor(private googleAuthService: GoogleAuthService,
+    private cd: ChangeDetectorRef,
+    ) { }
 
   ngOnInit(): void {
+    this.imgUrl$ = this.googleAuthService.imgUrl$;
+    this.imgUrl$.subscribe(imgUrl => {      
+      this.imgUrl = imgUrl;
+      this.cd.detectChanges();
+    })
   }
 
 }

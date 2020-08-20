@@ -6,6 +6,7 @@ from database import models, schemas
 from core.manga import Manga
 from core.chapter import Chapter
 
+from pydantic import HttpUrl
 
 def get_user(db: Session, user_id: int) -> models.User:
     return db.query(models.User).filter(models.User.id == user_id).first()
@@ -57,9 +58,9 @@ def update_manga_meta(db: Session, manga: Manga) -> models.Manga:
     return db_manga
 
 
-def create_manga(db: Session, manga: Manga, site: MangaSiteEnum) -> models.Manga:
+def create_manga(db: Session, manga_name: str, manga_url: HttpUrl, site: MangaSiteEnum) -> models.Manga:
     manga_site_id = get_manga_site_id(db, site)
-    db_manga = models.Manga(name=manga.name, url=manga.url,
+    db_manga = models.Manga(name=manga_name, url=manga_url,
                             manga_site_id=manga_site_id)
     db.add(db_manga)
     db.commit()

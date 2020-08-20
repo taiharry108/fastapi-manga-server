@@ -18,8 +18,7 @@ export class GoogleAuthComponent implements OnInit, OnDestroy {
     this.isSignedIn = false;
   }
 
-  ngOnInit(): void {
-    this.googleAuthService.initGoogleAuth();
+  ngOnInit(): void {    
     this.googleAuthService.isSignedIn$
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((isSignedIn) => {
