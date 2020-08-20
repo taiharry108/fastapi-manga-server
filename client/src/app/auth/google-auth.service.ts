@@ -19,18 +19,20 @@ export class GoogleAuthService {
       ).subscribe((auth) => {
             this._authInstance = auth;            
             this.isSignedIn$.next(auth.isSignedIn.get());
-            auth.isSignedIn.listen((signedIn) => {   
-              this.isSignedIn$.next(signedIn);
-              if (signedIn) {
-                const idToken = auth.currentUser.get().getAuthResponse().id_token;
-                this.api.logInToServer(idToken);                
-              }
-            });
+            auth.isSignedIn.listen((signedIn) => this.isSignedIn$.next(signedIn));
           });
     });
+    this.isSignedIn$.subscribe(signedIn => {   
+      if (signedIn)   {
+        console.log("hey i'm in!");
+        const idToken = this._authInstance.currentUser.get().getAuthResponse().id_token;
+        this.api.logInToServer(idToken);
+      }
+    })
   }
 
   signout(): void {
+    console.log('here');
     from(this._authInstance.signOut()).subscribe(
       () => this.api.logoutFromServer()
     );

@@ -12,6 +12,7 @@ import { MangaIndexComponent } from './ui/manga-index/manga-index.component';
 import { MainComponent } from './ui/main/main.component';
 import { GoogleAuthComponent } from './ui/auth/google-auth/google-auth.component';
 import { HttpRequestInterceptor } from './common/http-request-interceptor';
+import { UserNavComponent } from './ui/auth/user-nav/user-nav.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { HttpRequestInterceptor } from './common/http-request-interceptor';
     MangaIndexComponent,
     MainComponent,
     GoogleAuthComponent,
+    UserNavComponent,
   ],
   imports: [
     BrowserModule,
