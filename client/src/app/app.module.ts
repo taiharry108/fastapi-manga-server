@@ -13,6 +13,9 @@ import { MainComponent } from './ui/main/main.component';
 import { GoogleAuthComponent } from './ui/auth/google-auth/google-auth.component';
 import { HttpRequestInterceptor } from './common/http-request-interceptor';
 import { UserNavComponent } from './ui/auth/user-nav/user-nav.component';
+import { ProfileComponent } from './ui/user/profile/profile.component';
+import { HistoryComponent } from './ui/user/history/history.component';
+import { FavoriteComponent } from './ui/user/favorite/favorite.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +27,9 @@ import { UserNavComponent } from './ui/auth/user-nav/user-nav.component';
     MainComponent,
     GoogleAuthComponent,
     UserNavComponent,
+    ProfileComponent,
+    HistoryComponent,
+    FavoriteComponent,
   ],
   imports: [
     BrowserModule,
