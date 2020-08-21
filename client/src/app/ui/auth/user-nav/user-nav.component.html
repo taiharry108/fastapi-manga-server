@@ -1,1 +1,18 @@
-<div class="user-nav-container mx-2"><img class="profile-img" [src]="imgUrl"></div>
+<div class="user-nav-container mx-2" *ngIf="imgUrl">
+  <img
+    class="profile-img"
+    [src]="imgUrl"
+    id="dropdownMenuButton"
+    data-toggle="dropdown"
+    aria-haspopup="true"
+    aria-expanded="false"
+  />
+  <div class="dropdown">
+    <div class="dropdown-menu user-menu-dropdown" aria-labelledby="dropdownMenuButton">
+      <a class="dropdown-item" href="#">Profile</a>
+      <a class="dropdown-item" href="#">Favorite</a>
+      <a class="dropdown-item" href="#">History</a>
+      <a class="dropdown-item" href="#" (click)="signout()">Logout</a>
+    </div>
+  </div>
+</div>

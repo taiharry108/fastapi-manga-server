@@ -24,4 +24,8 @@ export class UserNavComponent implements OnInit {
     })
   }
 
+  signout(): void {
+    return this.googleAuthService.signout();
+  }
+
 }

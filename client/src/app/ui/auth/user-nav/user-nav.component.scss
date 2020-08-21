@@ -1,7 +1,19 @@
+@import '../../../../../node_modules/bootstrap/scss/bootstrap.scss';
+
 .user-nav-container {
-  height: 30px;
+  height: 40px;
 }
 
 .profile-img {
   height: 100%;
+  border-radius: 10px;
+  border-color: $gray-700;
+  border-width: 2px;
+  border-style: solid;
+  cursor: pointer;
+}
+
+.user-menu-dropdown {
+  right: 0;
+  left: auto;
 }
