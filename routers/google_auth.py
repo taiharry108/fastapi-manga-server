@@ -19,6 +19,11 @@ COOKIE_DOMAIN = "localhost"
 # COOKIE_DOMAIN = "127.0.0.1"
 
 
+@router.get('/test', tags=["security"])
+async def a(request: Request = None):
+    return {'status': True}
+
+
 @router.get('/logout', tags=["security"])
 async def logout():
     response = JSONResponse({"logout": True})
@@ -40,5 +45,3 @@ async def login(request: Request = None, db: Session = Depends(get_db)):
         expires=1800,
     )
     return response
-
-

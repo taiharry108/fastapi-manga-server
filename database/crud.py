@@ -8,6 +8,7 @@ from core.chapter import Chapter
 
 from pydantic import HttpUrl
 
+
 def get_user(db: Session, user_id: int) -> models.User:
     return db.query(models.User).filter(models.User.id == user_id).first()
 
@@ -118,13 +119,27 @@ def delete_all(db: Session) -> bool:
 
 def add_fav_manga(db: Session, manga_id: int, user_id: int) -> bool:
     db_manga = db.query(models.Manga).get(manga_id)
+    db_user = db.query(models.User).get(user_id)    
+    if db_manga:
+        db_user.fav_mangas.append(db_manga)
+        db.commit()
+        return True
+    else:
+        return False
+
+
+def del_fav_manga(db: Session, manga_id: int, user_id: int) -> bool:
+    db_manga = db.query(models.Manga).get(manga_id)
     db_user = db.query(models.User).get(user_id)
-    db_user.fav_mangas.append(db_manga)
-    db.commit()
-    return True
+    if db_manga:
+        db_user.fav_mangas.remove(db_manga)
+        db.commit()
+        return True
+    else:
+        return False
 
 
 def get_fav_mangas(db: Session, user_id: int) -> List[models.Manga]:
     db_user = db.query(models.User).get(user_id)
-    fav_mangas = db_user.fav_mangas    
+    fav_mangas = db_user.fav_mangas
     return fav_mangas

@@ -15,7 +15,7 @@ class TestManHuaBei(aiounittest.AsyncTestCase):
     async def test_get_img_domain(self, session):
         self.downloader.session = session
         img_domain = await self.site.get_img_domain()
-        # self.assertEqual(img_domain, "https://img01.eshanyao.com")
+        self.assertEqual(img_domain.startswith("https://"))
 
     @enter_session
     async def test_search_manga1(self, session):
@@ -58,10 +58,6 @@ class TestManHuaBei(aiounittest.AsyncTestCase):
         manga = await self.site.get_index_page("https://www.manhuabei.com/manhua/haizeiwang/")
         img_urls = await self.site.get_page_urls(manga, MangaIndexTypeEnum.CHAPTER, 0)
         self.assertEqual(len(img_urls), 7)
-        # self.assertEqual(
-        #     img_urls[0], "https://img01.eshanyao.com/images/comic/35/68585/1543688053ihMBXdx4oqiUj6aL.jpg")
-        # self.assertEqual(
-        #     img_urls[-1], "https://img01.eshanyao.com/images/comic/35/68585/1543688060NehG1cHTxGzpGeWC.jpg")
 
     @enter_session
     async def test_download_chapter(self, session):

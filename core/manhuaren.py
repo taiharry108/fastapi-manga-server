@@ -112,7 +112,6 @@ class ManHuaRen(MangaSite):
             onclick = a.get('onclick')
             if 'titleSelect' in onclick:
                 id_dict[a.text] = onclick.split("'")[3]
-
         for idx_type, id_v in id_dict.items():
             ul = soup.find('ul', {'id': id_v})
             m_type = get_type(idx_type)
@@ -120,7 +119,7 @@ class ManHuaRen(MangaSite):
                 url = a.get('href')
                 if not url.startswith('http'):
                     url = self.url + url.lstrip('/')
-                title = a.text
+                title = a.text                
                 manga.add_chapter(m_type=m_type, title=title, page_url=url)
 
         meta_dict = self.get_meta_data(soup)

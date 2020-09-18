@@ -37,7 +37,8 @@ async def get_index(site: MangaSiteEnum, manga_page: str, db: Session = Depends(
     manga_site = get_manga_site(site)
     url = get_idx_page(site, manga_page)
     manga = catalog.get_manga(site, url)
-    need_update = manga.last_update is None or manga.last_update + timedelta(days=3) < datetime.now()
+    need_update = manga.last_update is None or manga.last_update + \
+        timedelta(days=3) < datetime.now()
     if manga is None or not manga.idx_retrieved or need_update:
         if need_update and manga.thum_img is not None:
             os.remove(manga.thum_img)
@@ -57,8 +58,7 @@ async def get_chapter(site: MangaSiteEnum, manga_page: str, idx: int, m_type_int
     url = get_idx_page(site, manga_page)
 
     manga = catalog.get_manga(site, url)
-    if manga is None or not manga.idx_retrieved:
-        print(f"going to retrieve {url}")
+    if manga is None or not manga.idx_retrieved:        
         manga = await manga_site.get_index_page(url)
 
     if m_type_int == 0:
@@ -74,6 +74,7 @@ async def get_chapter(site: MangaSiteEnum, manga_page: str, idx: int, m_type_int
 @router.delete('/all')
 async def delete_all(db: Session = Depends(get_db)):
     return crud.delete_all(db)
+
 
 @router.post('/init')
 async def init_db(db: Session = Depends(get_db)):

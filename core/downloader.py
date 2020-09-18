@@ -90,7 +90,6 @@ class _Downloader(object):
                     await out_q.put(None)
                     break
                 idx, url = item
-                print(referer)
                 img_bytes = await self.get_img(url, {"Referer": referer})
                 await asyncio.sleep(0.3)
                 await out_q.put((idx, img_bytes))

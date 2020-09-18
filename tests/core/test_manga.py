@@ -2,13 +2,15 @@ import unittest
 from core.manga import Manga, MangaIndexTypeEnum
 from core.chapter import Chapter
 
+
 def get_sample_manga():
     manga_name = "Test Name"
     manga_url = "https://www.test.com"
-    return Manga(name=manga_name, url=manga_url)
+    return Manga(name=manga_name, url=manga_url, id=1)
+
 
 class TestManga(unittest.TestCase):
-    
+
     def setUp(self):
         self.manga = get_sample_manga()
         self.chapter_title = 'Test Title'
@@ -27,15 +29,15 @@ class TestManga(unittest.TestCase):
         self.assertIsNone(manga.last_update)
         self.assertIsNone(manga.finished)
         self.assertIsNone(manga.thum_img)
-    
+
     def test_add_chapter(self):
         """Test add chapter method"""
-        manga = self.manga        
+        manga = self.manga
         self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.CHAPTER]), 0)
         manga.add_chapter(MangaIndexTypeEnum.CHAPTER,
                           self.chapter_title, self.chapter_page_url)
         self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.CHAPTER]), 1)
-    
+
     def test_get_chapter(self):
         """Test get chapter"""
         manga = self.manga
@@ -44,4 +46,14 @@ class TestManga(unittest.TestCase):
         chapter = manga.get_chapter(MangaIndexTypeEnum.CHAPTER, 0)
         self.assertEqual(chapter.title, self.chapter_title)
         self.assertEqual(chapter.page_url, self.chapter_page_url)
-    
+
+    def test_add_same_chapter_twice(self):
+        """Test add same chapter twice"""
+        manga = self.manga
+        manga.add_chapter(MangaIndexTypeEnum.CHAPTER,
+                          self.chapter_title, self.chapter_page_url)
+
+        manga.add_chapter(MangaIndexTypeEnum.CHAPTER,
+                          self.chapter_title, self.chapter_page_url)
+                          
+        self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.CHAPTER]), 1)
