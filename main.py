@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import main_router, google_auth, user
+from routers import main, google_auth, user
 from core.downloader import Downloader
 from fastapi.logger import logger
 from core.singleton_aiohttp import SingletonAiohttp
@@ -35,7 +35,7 @@ app.add_middleware(
 )
 
 app.include_router(
-    main_router.router,
+    main.router,
     prefix="/api",
     responses={404: {"description": "Not Found"}}
 )

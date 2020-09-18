@@ -51,6 +51,3 @@ class User(UserBase):
 class MangaSite(BaseModel):
     name: str
     url: HttpUrl
-
-
-

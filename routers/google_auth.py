@@ -16,6 +16,7 @@ config = Config('.env')
 
 COOKIE_AUTHORIZATION_NAME = "Authorization"
 COOKIE_DOMAIN = "localhost"
+# COOKIE_DOMAIN = ""
 # COOKIE_DOMAIN = "127.0.0.1"
 
 
