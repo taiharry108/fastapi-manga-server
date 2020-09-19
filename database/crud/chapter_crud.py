@@ -3,7 +3,7 @@ from core.manga_index_type_enum import MangaIndexTypeEnum
 from sqlalchemy.orm import Session
 from core.chapter import Chapter
 from core.manga import Manga
-from .manga_crud import get_manga_by_url
+from .manga_crud import get_manga_by_url, create_manga
 
 def create_chapter(db: Session, chapter: Chapter, manga_id: int, m_type: MangaIndexTypeEnum):
     db_chap = models.Chapter(

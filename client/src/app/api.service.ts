@@ -23,6 +23,7 @@ export class ApiService {
   mangaWIthIndexResultSubject = new Subject<Manga>();
 
   imagesSseEvent = new Subject<Message>();
+  favMangas = new Subject<Manga[]>();
 
   private _searchEmpty = true;
 
@@ -67,7 +68,6 @@ export class ApiService {
 
   logInToServer(idToken: string) {
     const url = `${this.serverUrl}auth/login`;
-    console.log(idToken);
     this.http
       .post<Auth>(url, idToken, {
         headers: { 'X-Requested-With': 'XMLHttpRequest' },
@@ -104,9 +104,16 @@ export class ApiService {
     const splits = mangaUrl.split('/');
     const mangaPage = splits[splits.length - 2];
     const url = `${this.serverUrl}chapter/${this.site}/${mangaPage}?idx=${idx}&m_type_int=${mType}`;
-    console.log(url);
     this.sseService.getServerSentEvent(url).subscribe((message) => {
       this.imagesSseEvent.next(message);
+    });
+  }
+
+  getFavs() {
+    const url = `${this.serverUrl}user/favs`;
+    console.log(url);
+    this.http.get<Manga[]>(url).subscribe((result) => {
+      this.favMangas.next(result);
     });
   }
 }

@@ -12,7 +12,7 @@ from google.auth.transport import requests
 
 from sqlalchemy.orm import Session
 
-from database import crud
+from database.crud import user_crud
 
 config = Config('.env')
 SECRET_KEY = config('SECRET_KEY')
@@ -69,7 +69,7 @@ async def create_access_token(request: Request, db: Session) -> str:
     auth_code = jsonable_encoder(body_bytes)
 
     email = extract_email_from_id_token(auth_code)
-    user = crud.get_user_by_email(db, email, create_if_not_exist=True)
+    user = user_crud.get_user_by_email(db, email, create_if_not_exist=True)
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token_from_data(

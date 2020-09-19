@@ -1,14 +1,10 @@
-from core.manga_site_enum import MangaSiteEnum
-from database import crud
+from database.crud import manga_crud
 from database.utils import get_db
 from .test_database import override_get_db
 from main import app
 import unittest
 from fastapi.testclient import TestClient
-from fastapi import Cookie
-from fastapi.logger import logger
 from starlette.config import Config
-import os
 
 
 
@@ -35,7 +31,7 @@ class TestMain(unittest.TestCase):
                     self.assertEqual(
                         url, 'https://www.manhuaren.com/manhua-huoyingrenzhe-naruto/')
 
-                    db_manga = crud.get_manga_by_url(self.db, url)
+                    db_manga = manga_crud.get_manga_by_url(self.db, url)
 
                     self.assertIsNotNone(db_manga)
                     self.assertEqual(db_manga.name, manga['name'])

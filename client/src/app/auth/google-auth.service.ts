@@ -22,13 +22,13 @@ export class GoogleAuthService {
     this.initGoogleAuth();
   }
   initGoogleAuth(): void {
-    gapi.load('auth2', () => {
-      gapi.auth2.init({client_id: environment.googleClientId}).then(auth =>{
-        this._authInstance = auth;
-        this.isSignedIn$.next(auth.isSignedIn.get());
-        auth.isSignedIn.listen((signedIn) => this.isSignedIn$.next(signedIn));
-      });
-    });
+    // gapi.load('auth2', () => {
+    //   gapi.auth2.init({client_id: environment.googleClientId}).then(auth =>{
+    //     this._authInstance = auth;
+    //     this.isSignedIn$.next(auth.isSignedIn.get());
+    //     auth.isSignedIn.listen((signedIn) => this.isSignedIn$.next(signedIn));
+    //   });
+    // });
   }
 
   signout(): void {
