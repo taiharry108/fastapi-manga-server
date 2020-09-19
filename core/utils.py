@@ -8,3 +8,4 @@ def enter_session(func):
         async with aiohttp.ClientSession() as session:
             return await func(*args, session=session, **kwargs)
     return wrapped
+

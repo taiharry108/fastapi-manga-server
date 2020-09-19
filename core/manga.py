@@ -1,14 +1,16 @@
 from .chapter import Chapter
 from typing import Dict, List, Optional, Set
 from .manga_index_type_enum import MangaIndexTypeEnum
+from .manga_site_enum import MangaSiteEnum
 from pydantic import BaseModel, HttpUrl
 from datetime import datetime
 
 
 class MangaBase(BaseModel):
-    id: int
+    id: Optional[int]
     name: str
     url: HttpUrl
+    site: MangaSiteEnum
 
     class Config:
         orm_mode = True
@@ -35,14 +37,10 @@ class MangaWithMeta(MangaBase):
 class Manga(MangaWithMeta):
 
     chapters: Dict[MangaIndexTypeEnum, List[Chapter]] = {
-        m_site: [] for m_site in list(MangaIndexTypeEnum)}
-    
-    chapter_urls: Set[HttpUrl] = set()
+        m_type: [] for m_type in list(MangaIndexTypeEnum)}
 
-    def add_chapter(self, m_type: MangaIndexTypeEnum, title: str, page_url: str):        
-        if not page_url in self.chapter_urls:
-            self.chapters[m_type].append(Chapter(title=title, page_url=page_url))
-            self.chapter_urls.add(page_url)
+    def add_chapter(self, m_type: MangaIndexTypeEnum, title: str, page_url: str):
+        self.chapters[m_type].append(Chapter(title=title, page_url=page_url))
 
     def get_chapter(self, m_type: MangaIndexTypeEnum, idx: int) -> Chapter:
         return self.chapters[m_type][idx]

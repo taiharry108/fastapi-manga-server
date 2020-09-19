@@ -8,7 +8,7 @@ from typing import Any, AsyncIterable, Callable, Dict, List, Tuple, Union
 from commons.utils import SingletonDecorator
 from pathlib import Path
 import uuid
-
+from core.singleton_aiohttp import SingletonAiohttp
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
@@ -21,7 +21,7 @@ def get_resp(func: Callable) -> Callable:
     async def wrapped(self: "_Downloader", url: str, additional_headers: Dict[str, str] = {}, **kwargs):
         headers = {}
         headers.update(additional_headers)
-        headers.update(HEADERS)
+        headers.update(HEADERS)        
         async with self.session.get(url, headers=headers) as resp:
             if resp.status == 200:
                 return await func(self, resp, **kwargs)
@@ -30,10 +30,10 @@ def get_resp(func: Callable) -> Callable:
     return wrapped
 
 
-class _Downloader(object):
+class Downloader(object):
 
-    def __init__(self, session: aiohttp.ClientSession):
-        self.session = session
+    def __init__(self):
+        self.session = SingletonAiohttp.get_session()
         self.num_workers = 2
         self.__download_dir = Path('./images')
 
@@ -121,4 +121,4 @@ class _Downloader(object):
             yield {"idx": idx, "message": encoded_str, "total": total}
 
 
-Downloader = SingletonDecorator(_Downloader)
+# Downloader = SingletonDecorator(_Downloader)

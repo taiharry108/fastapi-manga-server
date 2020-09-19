@@ -2,7 +2,6 @@ from typing import List, Union, AsyncIterable
 from .manga import Manga
 from .manga_index_type_enum import MangaIndexTypeEnum
 from .downloader import Downloader
-from .manga_catalog import MangaCatalog
 from .manga_site_enum import MangaSiteEnum
 import json
 
@@ -19,11 +18,9 @@ class MangaSite(object):
         self._name = name
         self._url = url
         self.downloader = Downloader()
-        self.__catalog = MangaCatalog()
-        
 
     def get_manga(self, site: MangaSiteEnum, manga_name: Union[str, None], manga_url: str) -> Manga:
-        return self.__catalog.get_manga(site, manga_url, manga_name)
+        return Manga(name=manga_name, url=manga_url, site=site)
 
     def get_name(self) -> str:
         return self._name

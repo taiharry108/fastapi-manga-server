@@ -9,9 +9,9 @@
   />
   <div class="dropdown">
     <div class="dropdown-menu user-menu-dropdown" aria-labelledby="dropdownMenuButton">
-      <a class="dropdown-item" href="/profile">Profile</a>
-      <a class="dropdown-item" href="/favorite">Favorite</a>
-      <a class="dropdown-item" href="/history">History</a>
+      <a class="dropdown-item" (click)="navigate('profile')">Profile</a>
+      <a class="dropdown-item" (click)="navigate('favorite')">Favorite</a>
+      <a class="dropdown-item" (click)="navigate('history')">History</a>
       <a class="dropdown-item" href="#" (click)="signout()">Logout</a>
     </div>
   </div>

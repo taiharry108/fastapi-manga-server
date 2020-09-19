@@ -17,7 +17,7 @@ origins = ["http://localhost:4200"]
 
 async def on_start_up():
     fastAPI_logger.info("on_start_up")
-    d = Downloader(SingletonAiohttp.get_session())
+    # d = Downloader(SingletonAiohttp.get_session())    
 
 
 async def on_shutdown():

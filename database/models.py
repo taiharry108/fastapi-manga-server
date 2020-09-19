@@ -36,7 +36,7 @@ class MangaSite(Base):
     __tablename__ = "manga_sites"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    url = Column(String, index=True)
+    url = Column(String, index=True, unique=True)
 
     mangas = relationship("Manga", back_populates="manga_site")
 
@@ -46,7 +46,7 @@ class Manga(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    url = Column(String, index=True)
+    url = Column(String, index=True, unique=True)
     last_update = Column(DateTime, index=True)
     finished = Column(Boolean)
     thum_img = Column(String, index=True)
@@ -61,7 +61,7 @@ class Chapter(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
-    page_url = Column(String, index=True)
+    page_url = Column(String, index=True, unique=True)
     type = Column(Enum(MangaIndexTypeEnum), index=True)
 
     manga_id = Column(Integer, ForeignKey("mangas.id"))
