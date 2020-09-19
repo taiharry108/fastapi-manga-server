@@ -6,7 +6,7 @@ from .oauth2_password_bearer_cookie import OAuth2PasswordBearerCookie
 
 from database import schemas
 from database.database import SessionLocal
-from database.crud import get_user_by_email
+from database.crud.user_crud import get_user_by_email
 
 import jwt
 from sqlalchemy.orm import Session

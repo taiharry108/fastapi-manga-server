@@ -3,12 +3,14 @@ from socket import AF_INET
 
 SIZE_POOL_AIOHTTP=5
 
+
 class SingletonAiohttp(object):
     session: aiohttp.ClientSession = None
 
     @classmethod
-    def get_session(cls) -> aiohttp.ClientSession:
-        if cls.session is None:
+    def get_session(cls) -> aiohttp.ClientSession:        
+        if cls.session is None or cls.session.closed:
+            
             timeout = aiohttp.ClientTimeout(total=2)
             connector = aiohttp.TCPConnector(
                 family=AF_INET, limit_per_host=SIZE_POOL_AIOHTTP)

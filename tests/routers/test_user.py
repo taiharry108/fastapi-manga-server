@@ -4,8 +4,12 @@ from fastapi import Cookie
 from starlette.config import Config
 
 from main import app
+from .test_database import override_get_db
+from database.utils import get_db
 
 config = Config('.env')
+
+app.dependency_overrides[get_db] = override_get_db
 
 
 class TestUser(unittest.TestCase):
