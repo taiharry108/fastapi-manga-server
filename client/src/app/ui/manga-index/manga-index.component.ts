@@ -3,6 +3,7 @@ import { ApiService } from 'src/app/api.service';
 import { Observable, Subject } from 'rxjs';
 import { Manga } from 'src/app/model/manga';
 import { MangaIndexType } from 'src/app/model/manga-index-type.enum';
+import { takeUntil } from 'rxjs/operators';
 
 declare var $: any;
 
@@ -14,19 +15,27 @@ declare var $: any;
 export class MangaIndexComponent implements OnInit, OnDestroy {
   manga$: Observable<Manga>;
   ngUnsubscribe = new Subject<void>();
-  numCol: number;
-  numRow: number;
-  many: number[];
   activatedTab: number;
   MangaIndexType = MangaIndexType;
+  favMangaId: number[];
 
   constructor(private api: ApiService) {
     this.manga$ = this.api.mangaWIthIndexResultSubject;
   }
 
   ngOnInit(): void {
-    this.many = new Array(100);
     this.activatedTab = 0;
+    this.api.getFavs();
+    this.api.favMangas
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((mangas) => {
+        console.log(this.favMangaId);
+        this.favMangaId = mangas.map((manga) => manga.id);
+        console.log(this.favMangaId);
+      });
+    this.manga$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((manga) => {
+      console.log(manga);
+    });
   }
 
   ngOnDestroy(): void {
@@ -40,11 +49,22 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
   }
 
   onTabLinkClicked(idx: number) {
-    this.activatedTab = idx;    
+    this.activatedTab = idx;
   }
 
   get tabNames(): string[] {
     const keys = Object.keys(MangaIndexType);
     return keys.slice(keys.length / 2, keys.length);
+  }
+
+  isFav(mangaId: number): boolean {
+    return this.favMangaId !== undefined && this.favMangaId.includes(mangaId);
+  }
+
+  favIconClicked(mangaId: number): void {   
+    if (this.isFav(mangaId))
+      this.api.delFav(mangaId);
+    else
+    this.api.addFav(mangaId);
   }
 }

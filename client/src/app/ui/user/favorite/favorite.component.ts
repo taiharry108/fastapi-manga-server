@@ -19,6 +19,7 @@ export class FavoriteComponent implements OnInit {
   ngOnInit(): void {
     this.api.getFavs();
     this.mangas$ = this.api.favMangas;
+    this.mangas$.subscribe((result) => console.log(result));
       
   }
 }

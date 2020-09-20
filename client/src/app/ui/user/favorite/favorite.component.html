@@ -6,8 +6,11 @@
     <div class="row">
       <div class="card m-1" style="width: 18rem;" *ngFor="let manga of mangas$ | async">
         <div class="card-body">
-          <h5 class="card-title">{{ manga.name }}</h5>
-          <p class="card-text">{{ manga.last_update }}
+          <h5 class="card-title">{{ manga.name }}
+            <span class="site">{{ manga.site | mangaSite }}</span>
+          </h5>
+
+          <p class="card-text site">
           </p>
           <a href="#" class="btn btn-primary">Go somewhere</a>
         </div>

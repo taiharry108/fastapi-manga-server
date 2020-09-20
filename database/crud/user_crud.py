@@ -31,7 +31,7 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
 def add_fav_manga(db: Session, manga_id: int, user_id: int) -> bool:
     db_manga = db.query(models.Manga).get(manga_id)
     db_user = db.query(models.User).get(user_id)
-    if db_manga:
+    if db_manga and not db_manga in db_user.fav_mangas:
         db_user.fav_mangas.append(db_manga)
         db.commit()
         return True

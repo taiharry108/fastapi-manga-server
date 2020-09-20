@@ -1,13 +1,19 @@
-from typing import Any, List
+from database.crud import user_crud
 from database import models
 from sqlalchemy.orm import Session
 
 
 def delete_all(db: Session) -> bool:
     db.query(models.Chapter).delete()
+    
+    for user in db.query(models.User).all():        
+        user.fav_mangas = []
+    db.commit()
+    
     db.query(models.Manga).delete()
     db.query(models.User).delete()
-    db.commit()
+    db.query(models.MangaSite).delete()  
+    db.commit()    
     return True
 
 # def mass_create(db: Session, base: Any, objs: List[Any], unique_field: str):

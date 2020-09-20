@@ -54,3 +54,12 @@ def create_manga(db: Session, manga_name: str, manga_url: HttpUrl, site: MangaSi
     db.commit()
     db.refresh(db_manga)
     return db_manga
+
+
+def create_manga_with_manga_site_id(db: Session, manga_name: str, manga_url: HttpUrl, manga_site_id: int) -> models.Manga:
+    db_manga = models.Manga(name=manga_name, url=manga_url,
+                            manga_site_id=manga_site_id)
+    db.add(db_manga)
+    db.commit()
+    db.refresh(db_manga)
+    return db_manga

@@ -19,7 +19,7 @@ async def read_users_me(current_user: schemas.User = Depends(get_current_active_
 @router.post("/add_fav/{manga_id}", tags=["users"], status_code=201)
 async def add_fav(response: Response, current_user: schemas.User = Depends(get_current_active_user), db: Session = Depends(get_db), manga_id: int = None):
     user_id = current_user.id
-    success = user_crud.add_fav_manga(db, manga_id, user_id)
+    success = user_crud.add_fav_manga(db, manga_id, user_id)    
     if not success:
         response.status_code = status.HTTP_406_NOT_ACCEPTABLE
     return {"success": success}
