@@ -9,4 +9,5 @@ export interface Manga {
     thum_img: string;
     last_update: string;
     site?: string;
+    latest_chapters?: Map<string, Chapter>;
 }

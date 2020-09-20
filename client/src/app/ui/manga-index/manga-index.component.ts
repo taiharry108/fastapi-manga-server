@@ -29,9 +29,9 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.api.favMangas
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((mangas) => {
-        console.log(this.favMangaId);
+        console.log(mangas)
         this.favMangaId = mangas.map((manga) => manga.id);
-        console.log(this.favMangaId);
+        
       });
     this.manga$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((manga) => {
       console.log(manga);

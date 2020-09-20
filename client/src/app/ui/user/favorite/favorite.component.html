@@ -4,7 +4,7 @@
   </div>
   <div class="container favorite-list-container">
     <div class="row">
-      <div class="card m-1" style="width: 18rem;" *ngFor="let manga of mangas$ | async">
+      <div class="card m-1" style="width: 18rem;" *ngFor="let manga of mangas$ | async" (click)="favCardOnClick(manga)">
         <div class="card-body">
           <h5 class="card-title">{{ manga.name }}
             <span class="site">{{ manga.site | mangaSite }}</span>
