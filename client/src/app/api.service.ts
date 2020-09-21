@@ -26,6 +26,8 @@ export class ApiService {
   imagesSseEvent = new Subject<Message>();
   favMangas = new Subject<Manga[]>();
 
+  favMangaIds: number[];
+
   private _searchEmpty = true;
 
   emptySearch() {
@@ -114,6 +116,7 @@ export class ApiService {
     const url = `${this.serverUrl}user/favs`;
     this.http.get<Manga[]>(url).subscribe((result) => {
       this.favMangas.next(result);
+      this.favMangaIds = result.map((manga) => manga.id);
     });
   }
 

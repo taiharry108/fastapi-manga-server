@@ -10,4 +10,5 @@ export interface Manga {
     last_update: string;
     site?: string;
     latest_chapters?: Map<string, Chapter>;
+    isFav?: boolean;
 }

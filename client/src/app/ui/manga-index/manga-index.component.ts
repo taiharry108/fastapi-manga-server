@@ -17,7 +17,6 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
   ngUnsubscribe = new Subject<void>();
   activatedTab: number;
   MangaIndexType = MangaIndexType;
-  favMangaId: number[];
 
   constructor(private api: ApiService) {
     this.manga$ = this.api.mangaWIthIndexResultSubject;
@@ -26,12 +25,6 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.activatedTab = 0;
     this.api.getFavs();
-    this.api.favMangas
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((mangas) => {
-        console.log(mangas);
-        this.favMangaId = mangas.map((manga) => manga.id);
-      });
     this.manga$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((manga) => {
       console.log(manga);
     });
@@ -57,7 +50,11 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
   }
 
   isFav(mangaId: number): boolean {
-    return this.favMangaId !== undefined && this.favMangaId.includes(mangaId);
+    return this.favMangaIds !== undefined && this.favMangaIds.includes(mangaId);
+  }
+
+  get favMangaIds(): number[] {
+    return this.api.favMangaIds;
   }
 
   onFavIconClicked(mangaId: number): void {

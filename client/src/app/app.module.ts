@@ -18,6 +18,7 @@ import { HistoryComponent } from './ui/user/history/history.component';
 import { FavoriteComponent } from './ui/user/favorite/favorite.component';
 import { BookmarkIconComponent } from './ui/common/bookmark-icon/bookmark-icon.component';
 import { MangaSitePipe } from './model/manga-site.pipe';
+import { MangaListComponent } from './ui/user/manga-list/manga-list.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { MangaSitePipe } from './model/manga-site.pipe';
     FavoriteComponent,
     BookmarkIconComponent,
     MangaSitePipe,
+    MangaListComponent,
   ],
   imports: [
     BrowserModule,

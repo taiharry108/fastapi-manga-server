@@ -1,0 +1,35 @@
+<div class="manga-list-container m-auto">
+    <div class="header-container container my-3">
+        <h1 class='text-light text-center'>{{ title }}</h1>
+    </div>
+    <div class="container list-container">
+        <div class="row list-row">
+            <div class="col-lg-4 col-lt-md-12 px-0" *ngFor="let manga of mangas">
+                <div class="card m-1 d-flex flex-row manga-card" (click)="onCardClicked(manga)">
+                    <img class="rounded-left" [src]="mediaServerUrl + manga.thum_img" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate">
+                            {{ manga.name }}
+                        </h5>
+
+                        <span class="site">{{ manga.site | mangaSite }}</span>
+                        <div *ngFor="let chap of manga.latest_chapters | keyvalue">
+                            <p class="card-text latest">
+                                Latest {{ chap.key }} :
+                            </p>
+                            <p class="card-text latest">
+                                {{ chap.value.title }}
+                            </p>
+                        </div>
+                        <div class="mt-1">
+                            <app-bookmark-icon [isFav]="manga.isFav" size=1.5
+                                (click)="onFavIconClicked(manga.id);$event.stopPropagation()">
+                            </app-bookmark-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

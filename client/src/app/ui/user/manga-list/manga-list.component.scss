@@ -1,0 +1,27 @@
+@import "../../../../../node_modules/bootstrap/scss/bootstrap.scss";
+
+.site {
+  color: $gray-700;
+  font-size: $font-size-base;
+  margin-bottom: 0;
+}
+
+.latest {
+  color: $gray-600;
+  font-size: $font-size-sm;
+  margin-bottom: 0;
+}
+
+.manga-card {
+  height: 260px;
+  cursor: pointer;
+  background-color: $light;
+
+  &:hover {
+    background-color: white;
+  }
+}
+
+.card-body {
+  overflow: hidden;
+}
