@@ -100,10 +100,10 @@ export class ApiService {
     });
   }
 
-  getImages(mangaUrl: string, mType: MangaIndexType, idx: number) {
+  getImages(mangaUrl: string, pageUrl: string) {
     const splits = mangaUrl.split('/');
     const mangaPage = splits[splits.length - 2];
-    const url = `${this.serverUrl}chapter/${this.site}/${mangaPage}?idx=${idx}&m_type_int=${mType}`;
+    const url = `${this.serverUrl}chapter/${this.site}/${mangaPage}?page_url=${pageUrl}`;
     this.sseService.getServerSentEvent(url).subscribe((message) => {
       this.imagesSseEvent.next(message);
     });
