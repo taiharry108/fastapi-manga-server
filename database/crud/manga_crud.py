@@ -21,7 +21,7 @@ def update_manga_meta(db: Session, manga: Manga) -> models.Manga:
     return db_manga
 
 
-def create_mangas(db: Session, mangas: List[Manga], site: MangaSiteEnum) -> bool:
+def create_mangas(db: Session, mangas: List[Manga], site: MangaSiteEnum) -> bool:    
     manga_site_id = get_manga_site_id(db, site)
     db_mangas = []
 

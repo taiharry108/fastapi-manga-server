@@ -1,3 +1,5 @@
+from database.crud import manga_site_crud
+from database.crud import utils
 from database.crud import manga_crud
 from database.utils import get_db
 from .test_database import override_get_db
@@ -16,6 +18,8 @@ app.dependency_overrides[get_db] = override_get_db
 class TestMain(unittest.TestCase):
     def setUp(self):
         self.db = next(override_get_db())
+        utils.delete_all(self.db)
+        manga_site_crud.create_test_manga_site(self.db)
 
     def test_search_manga(self):
         """Test search manga on MHR"""
@@ -51,5 +55,5 @@ class TestMain(unittest.TestCase):
         """Test get chapter on MHR"""
         with TestClient(app) as client:
             response = client.get(
-                "/api/chapter/manhuaren/manhua-huoyingrenzhe-naruto", params={'idx': 0})
+                "/api/chapter/manhuaren/manhua-huoyingrenzhe-naruto", params={'page_url': "https://www.manhuaren.com/m208255/"})
             self.assertEqual(response.status_code, 200)

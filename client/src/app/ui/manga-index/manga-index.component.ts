@@ -43,9 +43,9 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  onLinkClicked(mangaPage: string, idx: number) {
+  onLinkClicked(mangaPage: string, pageUrl: string) {
     $('#exampleModalCenter').modal('show');
-    this.api.getImages(mangaPage, this.activatedTab, idx);
+    this.api.getImages(mangaPage, pageUrl);
   }
 
   onTabLinkClicked(idx: number) {

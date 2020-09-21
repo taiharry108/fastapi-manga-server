@@ -5,7 +5,7 @@ from database import models
 
 def create_test_manga_site(db: Session):
     db_manga_site = models.MangaSite(
-        name='comicbus',
+        name='manhuaren',
         url='https://test.com')
     db.add(db_manga_site)
     db.commit()

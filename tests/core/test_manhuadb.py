@@ -8,8 +8,8 @@ import json
 
 class TestManHuaDB(aiounittest.AsyncTestCase):
     def setUp(self):
-        self.downloader = Downloader(None)
         self.site = ManHuaDB()
+        self.downloader = self.site.downloader
 
     @enter_session
     async def test_search_manga1(self, session):
@@ -57,7 +57,7 @@ class TestManHuaDB(aiounittest.AsyncTestCase):
     async def test_get_page_urls(self, session):
         self.downloader.session = session
         manga = await self.site.get_index_page("https://www.manhuadb.com/manhua/2661")
-        img_urls = await self.site.get_page_urls(manga, MangaIndexTypeEnum.CHAPTER, 0)
+        img_urls = await self.site.get_page_urls(manga, "https://www.manhuadb.com/manhua/2661/3283_59202.html")
         self.assertEqual(len(img_urls), 30)
         self.assertEqual(
             img_urls[0], "https://i1.manhuadb.com/ccbaike/3283/59202/1_lavotadu.webp")
@@ -69,7 +69,7 @@ class TestManHuaDB(aiounittest.AsyncTestCase):
         self.downloader.session = session
         count = 0
         manga = await self.site.get_index_page("https://www.manhuadb.com/manhua/2661")
-        async for item_str in self.site.download_chapter(manga, MangaIndexTypeEnum.CHAPTER, 0):
+        async for item_str in self.site.download_chapter(manga, "https://www.manhuadb.com/manhua/2661/3283_59202.html"):
             item = json.loads(item_str[6:-2])
             if len(item) == 0:
                 continue

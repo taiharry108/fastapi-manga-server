@@ -20,6 +20,6 @@ class SingletonAiohttp(object):
     
     @classmethod
     async def close_aiohttp_client(cls):
-        if cls.session:
+        if cls.session:            
             await cls.session.close()
             cls.session = None

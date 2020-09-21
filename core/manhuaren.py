@@ -1,4 +1,6 @@
 from typing import List
+
+from pydantic.networks import HttpUrl
 from .manga_site import MangaSite
 from .manga_site_enum import MangaSiteEnum
 from .manga import Manga, MangaIndexTypeEnum
@@ -130,9 +132,8 @@ class ManHuaRen(MangaSite):
         manga.retreived_idx_page()
         return manga
 
-    async def get_page_urls(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> List[str]:
-        chapter = manga.get_chapter(m_type, idx)
-        soup = await self.downloader.get_soup(chapter.page_url)
+    async def get_page_urls(self, manga: Manga, page_url: HttpUrl) -> List[str]:        
+        soup = await self.downloader.get_soup(page_url)
 
         match = None
         for script in soup.find_all('script'):
