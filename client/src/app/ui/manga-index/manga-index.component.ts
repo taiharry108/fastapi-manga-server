@@ -29,9 +29,8 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.api.favMangas
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((mangas) => {
-        console.log(mangas)
+        console.log(mangas);
         this.favMangaId = mangas.map((manga) => manga.id);
-        
       });
     this.manga$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((manga) => {
       console.log(manga);
@@ -61,10 +60,8 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     return this.favMangaId !== undefined && this.favMangaId.includes(mangaId);
   }
 
-  favIconClicked(mangaId: number): void {   
-    if (this.isFav(mangaId))
-      this.api.delFav(mangaId);
-    else
-    this.api.addFav(mangaId);
+  onFavIconClicked(mangaId: number): void {
+    if (this.isFav(mangaId)) this.api.delFav(mangaId);
+    else this.api.addFav(mangaId);
   }
 }

@@ -17,6 +17,7 @@ export class ApiService {
     this._currentSite = MangaSite.ManHuaRen;
   }
   serverUrl = environment.serverUrl;
+  mediaServerUrl = environment.mediaServerUrl;
   _currentSite: MangaSite;
 
   searchResultSubject = new Subject<SearchResult[]>();

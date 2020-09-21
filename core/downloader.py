@@ -35,7 +35,7 @@ class Downloader(object):
     def __init__(self):
         self.session = SingletonAiohttp.get_session()
         self.num_workers = 2
-        self.__download_dir = Path('./images')
+        self.__download_dir = Path('./static/images')
 
     @get_resp
     async def get(self, resp: ClientResponse) -> str:

@@ -3,18 +3,32 @@
     <h1 class='text-light text-center'>Favorite</h1>
   </div>
   <div class="container favorite-list-container">
-    <div class="row">
-      <div class="card m-1" style="width: 18rem;" *ngFor="let manga of mangas$ | async" (click)="favCardOnClick(manga)">
-        <div class="card-body">
-          <h5 class="card-title">{{ manga.name }}
-            <span class="site">{{ manga.site | mangaSite }}</span>
-          </h5>
+    <div class="row favorite-list-row">
+      <div class="col-lg-4 col-lt-md-12 px-0" *ngFor="let manga of mangas$ | async">
+        <div class="card m-1 d-flex flex-row fav-card" (click)="favCardOnClick(manga)">
+          <img class="rounded-left" [src]="mediaServerUrl + manga.thum_img" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title text-truncate">
+              {{ manga.name }}
+            </h5>
 
-          <p class="card-text site" *ngFor="let chap of manga.latest_chapters | keyvalue">
-            Latest {{ chap.key }} : {{ chap.value.title }}
-          </p>
+            <span class="site">{{ manga.site | mangaSite }}</span>
+            <div *ngFor="let chap of manga.latest_chapters | keyvalue">
+              <p class="card-text latest">
+                Latest {{ chap.key }} :
+              </p>
+              <p class="card-text latest">
+                {{ chap.value.title }}
+              </p>
+            </div>
+            <div class="mt-1">
+              <app-bookmark-icon isFav="true" size=1.5 (click)="onFavIconClicked(manga.id);$event.stopPropagation()">
+              </app-bookmark-icon>
+            </div>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
