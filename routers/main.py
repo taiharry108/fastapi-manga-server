@@ -1,3 +1,4 @@
+from pydantic.networks import HttpUrl
 from database.crud import utils
 from datetime import datetime, timedelta
 import os
@@ -63,25 +64,15 @@ async def get_index(site: MangaSiteEnum, manga_page: str, db: Session = Depends(
 
 
 @router.get('/chapter/{site}/{manga_page}')
-async def get_chapter(site: MangaSiteEnum, manga_page: str, idx: int, m_type_int: int = 0):
+async def get_chapter(site: MangaSiteEnum, manga_page: str, page_url: HttpUrl):
     manga_site = get_manga_site(site)
     url = get_idx_page(site, manga_page)
 
     manga = catalog.get_manga(site, url)
     if manga is None or not manga.idx_retrieved:
         manga = await manga_site.get_index_page(url)
-    
-    for m_type, chapters in manga.chapters.items():
-        chapters.reverse()
 
-    if m_type_int == 0:
-        m_type = MangaIndexTypeEnum.CHAPTER
-    elif m_type_int == 1:
-        m_type = MangaIndexTypeEnum.VOLUME
-    else:
-        m_type = MangaIndexTypeEnum.MISC
-
-    return StreamingResponse(manga_site.download_chapter(manga, m_type, idx), media_type="text/event-stream")
+    return StreamingResponse(manga_site.download_chapter(manga, page_url), media_type="text/event-stream")
 
 
 @router.delete('/all')

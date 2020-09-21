@@ -1,5 +1,7 @@
 import base64
 from typing import List
+
+from pydantic.networks import HttpUrl
 from .manga_site import MangaSite
 from .manga_site_enum import MangaSiteEnum
 from .manga import Manga, MangaIndexTypeEnum
@@ -125,10 +127,9 @@ class ManHuaBei(MangaSite):
         filename = chap_path + '/' + page_url
         return self.img_domain + '/' + filename
 
-    async def get_page_urls(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> List[str]:
-        await self.get_img_domain()
-        chapter = manga.get_chapter(m_type, idx)
-        soup = await self.downloader.get_soup(chapter.page_url)
+    async def get_page_urls(self, manga: Manga, page_url: HttpUrl) -> List[str]:
+        await self.get_img_domain()        
+        soup = await self.downloader.get_soup(page_url)
 
         pattern = re.compile(
             'chapterImages = "(.*)";var chapterPath = "(.*)";var chapterPrice')

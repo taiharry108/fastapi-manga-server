@@ -1,4 +1,6 @@
 from typing import List, Union, AsyncIterable
+
+from pydantic.networks import HttpUrl
 from .manga import Manga
 from .manga_index_type_enum import MangaIndexTypeEnum
 from .downloader import Downloader
@@ -35,12 +37,12 @@ class MangaSite(object):
     async def get_index_page(self, page: str) -> Manga:
         raise NotImplementedError
 
-    async def get_page_urls(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> List[str]:
+    async def get_page_urls(self, manga: Manga, page_url: HttpUrl) -> List[str]:
         raise NotImplementedError
 
-    async def download_chapter(self, manga: Manga, m_type: MangaIndexTypeEnum, idx: int) -> AsyncIterable[str]:
-        img_urls = await self.get_page_urls(manga, m_type, idx)
-        referer = manga.get_chapter(m_type, idx).page_url
+    async def download_chapter(self, manga: Manga, page_url: HttpUrl) -> AsyncIterable[str]:
+        img_urls = await self.get_page_urls(manga, page_url)
+        referer = page_url
         async for img_dict in self.downloader.get_images(img_urls, referer=referer):
             yield f'data: {json.dumps(img_dict)}\n\n'
 

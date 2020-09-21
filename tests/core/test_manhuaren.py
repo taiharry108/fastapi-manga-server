@@ -8,8 +8,8 @@ import json
 
 class TestManHuaRen(aiounittest.AsyncTestCase):
     def setUp(self):
-        self.downloader = Downloader(None)
         self.site = ManHuaRen()
+        self.downloader = self.site.downloader
 
     @enter_session
     async def test_search_manga1(self, session):
@@ -38,8 +38,8 @@ class TestManHuaRen(aiounittest.AsyncTestCase):
 
         chap = manga.get_chapter(
             MangaIndexTypeEnum.CHAPTER, 0)
-        self.assertTrue(chap.page_url.endswith("m208255/"))
-        self.assertEqual(chap.title, '第710话')
+        self.assertTrue(chap.page_url.endswith("m5196/"))
+        self.assertEqual(chap.title, '第1卷')
 
     @enter_session
     async def test_get_index_page1(self, session):
@@ -51,26 +51,24 @@ class TestManHuaRen(aiounittest.AsyncTestCase):
 
         chap = manga.get_chapter(
             MangaIndexTypeEnum.CHAPTER, 0)
-        self.assertTrue(chap.page_url.endswith("m1006905/"))
-        self.assertEqual(chap.title, '第169话')
+        self.assertTrue(chap.page_url.endswith("m32738/"))
+        self.assertEqual(chap.title, '第1卷')
 
     @enter_session
     async def test_get_page_urls(self, session):
         self.downloader.session = session
         manga = await self.site.get_index_page("https://www.manhuaren.com/manhua-haidaozhanji/")
-        img_urls = await self.site.get_page_urls(manga, MangaIndexTypeEnum.CHAPTER, 0)
-        self.assertEqual(len(img_urls), 24)
+        img_urls = await self.site.get_page_urls(manga, "https://www.manhuaren.com/m32738/")
+        self.assertEqual(len(img_urls), 99)
         self.assertTrue(
-            img_urls[0].startswith("https://manhua1034-104-250-139-219.cdnmanhua.net/3/2800/1006905/1_1002.jpg?cid=1006905"))
-        self.assertTrue(
-            img_urls[-1].startswith("https://manhua1034-104-250-139-219.cdnmanhua.net/3/2800/1006905/24_5981.jpg?cid=1006905"))
+            img_urls[0].startswith("https://manhua1101-104-250-139-219.cdnmanhua.net/3/2800/32738/finaleden_001cz_60683891.jpg"))
 
     @enter_session
     async def test_download_chapter(self, session):
         self.downloader.session = session
         count = 0
         manga = await self.site.get_index_page("https://www.manhuaren.com/manhua-haidaozhanji/")
-        async for item_str in self.site.download_chapter(manga, MangaIndexTypeEnum.CHAPTER, 0):
+        async for item_str in self.site.download_chapter(manga, "https://www.manhuaren.com/m32738/"):
             item = json.loads(item_str[6:-2])
             if len(item) == 0:
                 continue
@@ -78,6 +76,6 @@ class TestManHuaRen(aiounittest.AsyncTestCase):
             image_bytes = item['message']
             count += 1
             if idx == 0:
-                self.assertEqual(len(image_bytes), 442088)
+                self.assertEqual(len(image_bytes), 92324)
 
-        self.assertEqual(count, 24)
+        self.assertEqual(count, 99)

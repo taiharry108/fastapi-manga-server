@@ -7,9 +7,10 @@ import json
 
 
 class TestManHuaBei(aiounittest.AsyncTestCase):
-    def setUp(self):
-        self.downloader = Downloader(None)
+    def setUp(self):        
         self.site = ManHuaBei()
+        self.downloader = self.site.downloader
+
     
     @enter_session
     async def test_get_img_domain(self, session):
