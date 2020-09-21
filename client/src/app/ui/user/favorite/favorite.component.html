@@ -10,9 +10,9 @@
             <span class="site">{{ manga.site | mangaSite }}</span>
           </h5>
 
-          <p class="card-text site">
+          <p class="card-text site" *ngFor="let chap of manga.latest_chapters | keyvalue">
+            Latest {{ chap.key }} : {{ chap.value.title }}
           </p>
-          <a href="#" class="btn btn-primary">Go somewhere</a>
         </div>
       </div>
     </div>
