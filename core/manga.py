@@ -44,3 +44,10 @@ class Manga(MangaWithMeta):
 
     def get_chapter(self, m_type: MangaIndexTypeEnum, idx: int) -> Chapter:
         return self.chapters[m_type][idx]
+
+
+class FavManga(MangaWithMeta):
+    latest_chapters: Dict[MangaIndexTypeEnum, Chapter] = {}
+
+    def add_chapter(self, m_type: MangaIndexTypeEnum, title: str, page_url: str):
+        self.latest_chapters[m_type] = Chapter(title=title, page_url=page_url)

@@ -16,19 +16,20 @@ export class GoogleAuthService {
         const idToken = this._authInstance.currentUser.get().getAuthResponse().id_token;
         const imgUrl = this._authInstance.currentUser.get().getBasicProfile().getImageUrl();
         this.imgUrl$.next(imgUrl);
+        console.log(idToken);
         this.api.logInToServer(idToken);
       }
     });
     this.initGoogleAuth();
   }
   initGoogleAuth(): void {
-    // gapi.load('auth2', () => {
-    //   gapi.auth2.init({client_id: environment.googleClientId}).then(auth =>{
-    //     this._authInstance = auth;
-    //     this.isSignedIn$.next(auth.isSignedIn.get());
-    //     auth.isSignedIn.listen((signedIn) => this.isSignedIn$.next(signedIn));
-    //   });
-    // });
+    gapi.load('auth2', () => {
+      gapi.auth2.init({client_id: environment.googleClientId}).then(auth =>{
+        this._authInstance = auth;
+        this.isSignedIn$.next(auth.isSignedIn.get());
+        auth.isSignedIn.listen((signedIn) => this.isSignedIn$.next(signedIn));
+      });
+    });
   }
 
   signout(): void {

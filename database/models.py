@@ -5,8 +5,10 @@ from .database import Base
 from core.manga_index_type_enum import MangaIndexTypeEnum
 
 association_table = Table('association', Base.metadata,
-                          Column('user_id', Integer, ForeignKey('users.id')),
-                          Column('manga_id', Integer, ForeignKey('mangas.id'))
+                          Column('user_id', Integer, ForeignKey(
+                              'users.id')),
+                          Column('manga_id', Integer, ForeignKey(
+                              'mangas.id'))
                           )
 
 

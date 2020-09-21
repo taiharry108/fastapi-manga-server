@@ -1,4 +1,4 @@
-from core.manga import Manga
+from core.manga import FavManga, Manga
 from database import models
 
 
@@ -13,18 +13,39 @@ class SingletonDecorator:
         return self.instance
 
 
-def construct_manga(manga: models.Manga) -> Manga:    
-    result = Manga(name=manga.name, url=manga.url, id=manga.id, site=manga.manga_site.name)
+def construct_fav_manga(manga: models.Manga) -> FavManga:
+    result = FavManga(name=manga.name, url=manga.url,
+                      id=manga.id, site=manga.manga_site.name)
 
-    idx_retrieved = False        
-    for chapter in manga.chapters:        
-        m_type = chapter.type        
+    idx_retrieved = False
+    for chapter in manga.chapters:
+        result.add_chapter(chapter.type, chapter.title, chapter.page_url)
+        idx_retrieved = True
+
+    if idx_retrieved:
+        result.retreived_idx_page()
+
+    result.set_meta_data({
+        'finished': manga.finished,
+        'last_update': manga.last_update,
+        'thum_img': manga.thum_img
+    }, create_last_update=False)
+
+    return result
+
+
+def construct_manga(manga: models.Manga) -> Manga:
+    result = Manga(name=manga.name, url=manga.url,
+                   id=manga.id, site=manga.manga_site.name)
+
+    idx_retrieved = False
+    for chapter in manga.chapters:
+        m_type = chapter.type
         result.add_chapter(m_type, chapter.title, chapter.page_url)
         idx_retrieved = True
 
     if idx_retrieved:
         result.retreived_idx_page()
-    
 
     result.set_meta_data({
         'finished': manga.finished,
