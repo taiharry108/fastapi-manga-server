@@ -7,7 +7,7 @@
       <div class="meta-container w-75 ml-5">
         <h1 class="display-4 text-light">{{ manga.name }}</h1>
         <div class="m-2">
-          <app-bookmark-icon [isFav]="isFav(manga.id)" (click)="favIconClicked(manga.id)"></app-bookmark-icon>
+          <app-bookmark-icon [isFav]="isFav(manga.id)" (click)="onFavIconClicked(manga.id)"></app-bookmark-icon>
         </div>
         <hr class="my-4" />
         <p class="lead text-light">Last Update: {{ manga.last_update }}</p>

@@ -5,3 +5,23 @@
   font-size: $font-size-base;
   margin-bottom: 0;
 }
+
+.latest {
+  color: $gray-500;
+  font-size: $font-size-sm;
+  margin-bottom: 0;
+}
+
+.fav-card {
+  height: 260px;
+  cursor: pointer;
+  background-color: $light;
+
+  &:hover {
+    background-color: white;
+  }
+}
+
+.card-body {
+  overflow: hidden;
+}

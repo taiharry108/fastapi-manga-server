@@ -5,6 +5,7 @@
 export const environment = {
          production: false,
          serverUrl: 'http://localhost:8000/api/',
+         mediaServerUrl: 'http://localhost:8000/',
          googleClientId:
            '876324062191-bdqmm1gsrnha94r59tbv165nnn8j348e.apps.googleusercontent.com',
        };
