@@ -1,6 +1,6 @@
-from commons.utils import construct_manga
+from commons.utils import construct_fav_manga, construct_manga
 from fastapi import Response, status
-from core.manga import MangaWithMeta
+from core.manga import FavManga, MangaWithMeta
 from typing import List
 from database.crud import user_crud
 from database.utils import get_current_active_user, get_db
@@ -34,8 +34,8 @@ async def del_fav(response: Response, current_user: schemas.User = Depends(get_c
     return {"success": success}
 
 
-@router.get("/favs", tags=["users"], response_model=List[MangaWithMeta])
+@router.get("/favs", tags=["users"], response_model=List[FavManga])
 async def get_favs(current_user: schemas.User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_id = current_user.id
     fav_mangas = user_crud.get_fav_mangas(db, user_id)
-    return [construct_manga(m) for m in fav_mangas]
+    return [construct_fav_manga(m) for m in fav_mangas]

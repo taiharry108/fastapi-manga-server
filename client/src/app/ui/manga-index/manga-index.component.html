@@ -28,7 +28,7 @@
   <div class="index-table-container bg-light mx-auto">
     <div class="row mx-2 justify-content-md-center">
       <div *ngFor="
-          let chapter of manga.chapters[MangaIndexType[activatedTab]].slice().reverse();
+          let chapter of manga.chapters[MangaIndexType[activatedTab]];
           let idx = index
         " class="chapter-link-container col-sm-3 col-lg-2 m-2">
         <a class="chapter-link nav-link text-center" (click)="onLinkClicked(manga.url, idx)">{{ chapter.title }}</a>

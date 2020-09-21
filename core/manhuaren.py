@@ -115,7 +115,7 @@ class ManHuaRen(MangaSite):
         for idx_type, id_v in id_dict.items():
             ul = soup.find('ul', {'id': id_v})
             m_type = get_type(idx_type)
-            for a in ul.find_all('a'):
+            for a in reversed(ul.find_all('a')):
                 url = a.get('href')
                 if not url.startswith('http'):
                     url = self.url + url.lstrip('/')

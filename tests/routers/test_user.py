@@ -1,3 +1,7 @@
+from core.manga import FavManga
+from core.manga_index_type_enum import MangaIndexTypeEnum
+from core.chapter import Chapter
+from database.crud import chapter_crud
 from database import models
 from database.crud import user_crud
 from database.crud import utils
@@ -38,8 +42,15 @@ class TestUserPrivate(unittest.TestCase):
         self.test_manga_url = "https://test.com"
         return manga_crud.create_manga_with_manga_site_id(self.db, self.test_manga_name, self.test_manga_url, 1)
 
+    def create_chapter(self, title, page_url, manga: models.Manga) -> models.Chapter:
+        """Helper function to create test chapter"""
+        
+        chapter = Chapter(
+            title=title, page_url=page_url)
+        return chapter_crud.create_chapter(self.db, chapter,
+                                           manga.id, MangaIndexTypeEnum.CHAPTER)
+
     def tearDown(self) -> None:
-        # utils.delete_all(self.db)
         pass
 
     def test_me_success(self):
@@ -53,7 +64,7 @@ class TestUserPrivate(unittest.TestCase):
         response = self.client.get(
             '/api/user/favs', cookies={"Authorization": self.code})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.json())
+        result = response.json()
 
     def test_add_fav_failed(self):
         """Test add fav failed"""
@@ -64,8 +75,8 @@ class TestUserPrivate(unittest.TestCase):
 
     def test_add_fav_successful(self):
         """Test add fav successful"""
-        self.create_manga()
-        
+        manga = self.create_manga()        
+
         response = self.client.post(
             '/api/user/add_fav/1', cookies={"Authorization": self.code})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -78,6 +89,7 @@ class TestUserPrivate(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['name'], self.test_manga_name)
         self.assertEqual(result[0]['url'], self.test_manga_url)
+        
 
     def test_add_fav_twice_failed(self):
         """Test add fav successful"""
@@ -123,6 +135,25 @@ class TestUserPrivate(unittest.TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         self.assertFalse(response.json()['success'])
+    
+    def test_fav_latest_chapter(self):
+        """Test fav latest chapter"""
+        manga = self.create_manga()        
+        self.create_chapter("Title 1", "https://test1.com", manga)
+        self.create_chapter("Title 2", "https://test2.com", manga)
+
+        self.client.post(
+            f'/api/user/add_fav/{manga.id}', cookies={"Authorization": self.code})
+        
+
+        response = self.client.get(
+            '/api/user/favs', cookies={"Authorization": self.code})        
+        result = response.json()
+        manga = FavManga(**result[0])
+        latest_chap = manga.latest_chapters[MangaIndexTypeEnum.CHAPTER]
+        self.assertEqual(latest_chap.title, "Title 2")
+        
+
 
 
 class TestUser(unittest.TestCase):
