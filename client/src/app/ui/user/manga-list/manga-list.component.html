@@ -22,8 +22,8 @@
                             </p>
                         </div>
                         <div class="mt-1">
-                            <app-bookmark-icon [isFav]="manga.isFav" size=1.5
-                                (click)="onFavIconClicked(manga.id);$event.stopPropagation()">
+                            <app-bookmark-icon [isFav]="manga.is_fav" size=1.5
+                                (click)="onFavIconClicked(manga.id, manga.is_fav);$event.stopPropagation()">
                             </app-bookmark-icon>
                         </div>
                     </div>

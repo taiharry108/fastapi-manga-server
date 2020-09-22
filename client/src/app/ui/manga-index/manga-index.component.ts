@@ -26,7 +26,7 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.activatedTab = 0;
     this.api.getFavs();
     this.manga$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((manga) => {
-      console.log(manga);
+      this.api.addHistory(manga.id);
     });
   }
 
