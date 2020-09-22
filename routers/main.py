@@ -85,10 +85,7 @@ async def delete_all(db: Session = Depends(get_db)):
 
 @router.get('/test')
 async def test(db: Session = Depends(get_db)):
-    urls = ["https://www.manhuaren.com/m179756/",
-            "https://www.manhuaren.com/m178907/"]
-    db_chaps = db.query(models.Chapter).filter(
-        models.Chapter.page_url.in_(urls)).all()
-    for chap in db_chaps:
-        print(chap.title)
+    db_user = db.query(models.User).first()    
     return True
+
+

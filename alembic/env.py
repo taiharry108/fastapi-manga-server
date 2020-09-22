@@ -1,3 +1,9 @@
+import sys
+
+sys.path = ['', '..'] + sys.path[1:]
+
+
+from database.models import Base
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -15,7 +21,6 @@ fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from database.models import Base
 
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata

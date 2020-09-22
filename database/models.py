@@ -1,15 +1,22 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Enum, Table
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relation, relationship
 
 from .database import Base
 from core.manga_index_type_enum import MangaIndexTypeEnum
 
-association_table = Table('association', Base.metadata,
-                          Column('user_id', Integer, ForeignKey(
+favorite_table = Table('favorite', Base.metadata,
+                       Column('user_id', Integer, ForeignKey(
                               'users.id')),
-                          Column('manga_id', Integer, ForeignKey(
+                       Column('manga_id', Integer, ForeignKey(
                               'mangas.id'))
-                          )
+                       )
+
+history_table = Table('history', Base.metadata,
+                      Column('user_id', Integer, ForeignKey(
+                          'users.id')),
+                      Column('manga_id', Integer, ForeignKey(
+                          'mangas.id'))
+                      )
 
 
 class User(Base):
@@ -20,7 +27,8 @@ class User(Base):
     is_active = Column(Boolean, default=True)
 
     items = relationship("Item", back_populates="owner")
-    fav_mangas = relationship("Manga", secondary=association_table)
+    fav_mangas = relationship("Manga", secondary=favorite_table)
+    history = relationship("Manga", secondary=history_table)
 
 
 class Item(Base):
@@ -55,7 +63,6 @@ class Manga(Base):
     chapters = relationship("Chapter", back_populates="manga")
     manga_site_id = Column(Integer, ForeignKey("manga_sites.id"))
     manga_site = relationship("MangaSite", back_populates="mangas")
-    
 
 
 class Chapter(Base):

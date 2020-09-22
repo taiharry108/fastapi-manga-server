@@ -1,4 +1,4 @@
-from core.manga import FavManga
+from core.manga import MangaSimple
 from core.manga_index_type_enum import MangaIndexTypeEnum
 from core.chapter import Chapter
 from database.crud import chapter_crud
@@ -58,6 +58,82 @@ class TestUserPrivate(unittest.TestCase):
         response = self.client.get(
             "/api/user/me", cookies={"Authorization": self.code})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_get_history(self):
+        """Test get history with auth"""
+        response = self.client.get(
+            '/api/user/history', cookies={"Authorization": self.code})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.json()
+
+    def test_add_history_failed(self):
+        """Test add fav failed"""
+        response = self.client.post(
+            '/api/user/add_history/1', cookies={"Authorization": self.code})
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        self.assertFalse(response.json()['success'])
+
+    def test_add_history_successful(self):
+        """Test add history successful"""
+        manga = self.create_manga()
+
+        response = self.client.post(
+            '/api/user/add_history/1', cookies={"Authorization": self.code})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(response.json()['success'])
+
+        response = self.client.get(
+            '/api/user/history', cookies={"Authorization": self.code})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.json()
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['name'], self.test_manga_name)
+        self.assertEqual(result[0]['url'], self.test_manga_url)
+    
+    def test_add_history_twice_failed(self):
+        """Test add history successful"""
+        self.create_manga()
+
+        response = self.client.post(
+            '/api/user/add_history/1', cookies={"Authorization": self.code})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(response.json()['success'])
+
+        response = self.client.post(
+            '/api/user/add_history/1', cookies={"Authorization": self.code})
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        self.assertFalse(response.json()['success'])
+
+        response = self.client.get(
+            '/api/user/history', cookies={"Authorization": self.code})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.json()
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['name'], self.test_manga_name)
+        self.assertEqual(result[0]['url'], self.test_manga_url)
+
+    def test_del_history_successful(self):
+        """Test del history successful"""
+        manga = self.create_manga()
+        user = user_crud.get_users(self.db)[0]
+        self.assertEqual(user.id, 1)
+        success = user_crud.add_history_manga(self.db, manga.id, user.id)
+        self.assertTrue(success)
+        response = self.client.delete(
+            '/api/user/del_history/1', cookies={"Authorization": self.code})
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertTrue(response.json()['success'])
+
+    def test_del_history_failed(self):
+        """Test del history failed"""
+        user = user_crud.get_users(self.db)[0]
+        self.assertEqual(user.id, 1)
+        response = self.client.delete(
+            '/api/user/del_history/1', cookies={"Authorization": self.code})
+
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        self.assertFalse(response.json()['success'])
 
     def test_get_favs(self):
         """Test get favorites with auth"""
@@ -149,7 +225,7 @@ class TestUserPrivate(unittest.TestCase):
         response = self.client.get(
             '/api/user/favs', cookies={"Authorization": self.code})        
         result = response.json()
-        manga = FavManga(**result[0])
+        manga = MangaSimple(**result[0])
         latest_chap = manga.latest_chapters[MangaIndexTypeEnum.CHAPTER]
         self.assertEqual(latest_chap.title, "Title 2")
         

@@ -21,6 +21,7 @@ class MangaCatalog(object):
                 if manga_name is not None:
                     manga = manga_crud.crud.create_manga(
                         db, manga_name, manga_url, site)
+                    is_fav = False
                 else:
                     return None
 

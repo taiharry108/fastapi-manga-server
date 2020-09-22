@@ -25,6 +25,7 @@ export class ApiService {
 
   imagesSseEvent = new Subject<Message>();
   favMangas = new Subject<Manga[]>();
+  historyMangas = new Subject<Manga[]>();
 
   favMangaIds: number[];
 
@@ -109,6 +110,21 @@ export class ApiService {
     const url = `${this.serverUrl}chapter/${this.site}/${mangaPage}?page_url=${pageUrl}`;
     this.sseService.getServerSentEvent(url).subscribe((message) => {
       this.imagesSseEvent.next(message);
+    });
+  }
+
+  getHistory() {
+    const url = `${this.serverUrl}user/history`;
+    this.http.get<Manga[]>(url).subscribe((result) => {
+      this.historyMangas.next(result);
+    });
+  }
+
+  addHistory(mangaId: number) {
+    const url = `${this.serverUrl}user/add_history/${mangaId}`;
+    this.http.post(url, {}).subscribe((result) => {
+      console.log(result);
+      this.getHistory();
     });
   }
 

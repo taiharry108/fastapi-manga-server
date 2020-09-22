@@ -19,9 +19,9 @@ export class HistoryComponent implements OnInit, OnDestroy {
   constructor(private api: ApiService, private router: Router) {}
 
   ngOnInit(): void {
-    this.api.getFavs();
+    this.api.getHistory();
     this.mediaServerUrl = this.api.mediaServerUrl;
-    this.api.favMangas
+    this.api.historyMangas
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((mangas) => (this.mangas = mangas));
   }
