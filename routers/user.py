@@ -1,3 +1,4 @@
+from database.crud.crud_enum import CrudEnum
 from commons.utils import construct_simple_manga
 from fastapi import Response, status
 from core.manga import MangaSimple
@@ -42,7 +43,7 @@ async def get_favs(current_user: schemas.User = Depends(get_current_active_user)
 
 
 @router.get("/history", tags=["users"], response_model=List[MangaSimple])
-async def get_favs(current_user: schemas.User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_history(current_user: schemas.User = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_id = current_user.id
     history = user_crud.get_history_mangas(db, user_id)
     fav_mangas = user_crud.get_fav_mangas(db, user_id)
@@ -52,10 +53,15 @@ async def get_favs(current_user: schemas.User = Depends(get_current_active_user)
 
 @router.post("/add_history/{manga_id}", tags=["users"], status_code=201)
 async def add_history(response: Response, current_user: schemas.User = Depends(get_current_active_user), db: Session = Depends(get_db), manga_id: int = None):
-    user_id = current_user.id
+    user_id = current_user.id    
     success = user_crud.add_history_manga(db, manga_id, user_id)
-    if not success:
+    if success == CrudEnum.Created:
+        response.status_code = status.HTTP_201_CREATED
+    elif success == CrudEnum.Updated:
+        response.status_code = status.HTTP_202_ACCEPTED
+    elif success == CrudEnum.Failed:
         response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+
     return {"success": success}
 
 
@@ -63,6 +69,6 @@ async def add_history(response: Response, current_user: schemas.User = Depends(g
 async def del_history(response: Response, current_user: schemas.User = Depends(get_current_active_user), db: Session = Depends(get_db), manga_id: int = None):
     user_id = current_user.id
     success = user_crud.del_history_manga(db, manga_id, user_id)
-    if not success:
+    if success == CrudEnum.Failed:
         response.status_code = status.HTTP_406_NOT_ACCEPTABLE
     return {"success": success}

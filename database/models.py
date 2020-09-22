@@ -1,5 +1,5 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Enum, Table
-from sqlalchemy.orm import relation, relationship
+from sqlalchemy.orm import relationship
 
 from .database import Base
 from core.manga_index_type_enum import MangaIndexTypeEnum
@@ -11,12 +11,14 @@ favorite_table = Table('favorite', Base.metadata,
                               'mangas.id'))
                        )
 
-history_table = Table('history', Base.metadata,
-                      Column('user_id', Integer, ForeignKey(
-                          'users.id')),
-                      Column('manga_id', Integer, ForeignKey(
-                          'mangas.id'))
-                      )
+
+class History(Base):
+    __tablename__ = 'history'
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    manga_id = Column(Integer, ForeignKey('mangas.id'), primary_key=True)
+    last_added = Column(DateTime)
+    manga = relationship("Manga", back_populates="users")
+    user = relationship("User", back_populates="history_mangas")
 
 
 class User(Base):
@@ -26,20 +28,8 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     is_active = Column(Boolean, default=True)
 
-    items = relationship("Item", back_populates="owner")
     fav_mangas = relationship("Manga", secondary=favorite_table)
-    history = relationship("Manga", secondary=history_table)
-
-
-class Item(Base):
-    __tablename__ = "items"
-
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    description = Column(String, index=True)
-    owner_id = Column(Integer, ForeignKey("users.id"))
-
-    owner = relationship("User", back_populates="items")
+    history_mangas = relationship("History", back_populates="user")
 
 
 class MangaSite(Base):
@@ -63,6 +53,7 @@ class Manga(Base):
     chapters = relationship("Chapter", back_populates="manga")
     manga_site_id = Column(Integer, ForeignKey("manga_sites.id"))
     manga_site = relationship("MangaSite", back_populates="mangas")
+    users = relationship("History", back_populates="manga")
 
 
 class Chapter(Base):
