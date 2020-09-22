@@ -20,7 +20,7 @@ class MangaWithMeta(MangaBase):
     last_update: Optional[datetime]
     finished: Optional[bool]
     thum_img: Optional[str]
-    idx_retrieved: Optional[bool]
+    idx_retrieved: Optional[bool]    
 
     def retreived_idx_page(self):
         self.idx_retrieved = True
@@ -46,8 +46,9 @@ class Manga(MangaWithMeta):
         return self.chapters[m_type][idx]
 
 
-class FavManga(MangaWithMeta):
+class MangaSimple(MangaWithMeta):
     latest_chapters: Dict[MangaIndexTypeEnum, Chapter] = {}
+    is_fav: bool
 
     def add_chapter(self, m_type: MangaIndexTypeEnum, title: str, page_url: str):
         self.latest_chapters[m_type] = Chapter(title=title, page_url=page_url)

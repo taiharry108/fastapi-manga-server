@@ -31,7 +31,7 @@ class OAuth2PasswordBearerCookie(OAuth2):
         )
         cookie_scheme, cookie_param = get_authorization_scheme_param(
             cookie_authorization
-        )
+        )        
 
         param = scheme = None
 

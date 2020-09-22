@@ -12,6 +12,12 @@ def get_manga_by_url(db: Session, url: str) -> models.Manga:
     return query_result.first()
 
 
+def get_mangas_by_ids(db: Session, manga_ids: List[int]) -> List[models.Manga]:
+    result = db.query(models.Manga).filter(
+        models.Manga.id.in_(manga_ids)).all()
+    return [next(s for s in result if s.id == id) for id in manga_ids]
+
+
 def update_manga_meta(db: Session, manga: Manga) -> models.Manga:
     db_manga = get_manga_by_url(db, manga.url)
     db_manga.finished = manga.finished
@@ -21,7 +27,7 @@ def update_manga_meta(db: Session, manga: Manga) -> models.Manga:
     return db_manga
 
 
-def create_mangas(db: Session, mangas: List[Manga], site: MangaSiteEnum) -> bool:    
+def create_mangas(db: Session, mangas: List[Manga], site: MangaSiteEnum) -> bool:
     manga_site_id = get_manga_site_id(db, site)
     db_mangas = []
 

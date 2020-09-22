@@ -4,7 +4,7 @@ import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from 'src/app/api.service';
 import { convertPySite } from 'src/app/manga-site.enum';
-import { Manga } from 'src/app/model/manga';
+import { Manga, MangaSimple } from 'src/app/model/manga';
 
 @Component({
   selector: 'app-history',
@@ -19,11 +19,13 @@ export class HistoryComponent implements OnInit, OnDestroy {
   constructor(private api: ApiService, private router: Router) {}
 
   ngOnInit(): void {
-    this.api.getFavs();
+    this.api.getHistory();
     this.mediaServerUrl = this.api.mediaServerUrl;
-    this.api.favMangas
+    this.api.historyMangas
       .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((mangas) => (this.mangas = mangas));
+      .subscribe((mangas) => {
+        this.mangas = mangas;
+      });
   }
 
   ngOnDestroy(): void {
@@ -40,7 +42,10 @@ export class HistoryComponent implements OnInit, OnDestroy {
     this.router.navigate(['/manga-index']);
   }
 
-  onFavIconClicked(mangaId: number) {
-    this.api.delFav(mangaId);
+  onFavIconClicked(ms: MangaSimple) {
+    if (ms.isFav)
+      this.api.delFav(ms.id, true);
+    else
+      this.api.addFav(ms.id, true);
   }
 }

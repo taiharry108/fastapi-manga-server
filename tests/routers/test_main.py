@@ -2,7 +2,7 @@ from database.crud import manga_site_crud
 from database.crud import utils
 from database.crud import manga_crud
 from database.utils import get_db
-from .test_database import override_get_db
+from .utils import override_get_db
 from main import app
 import unittest
 from fastapi.testclient import TestClient

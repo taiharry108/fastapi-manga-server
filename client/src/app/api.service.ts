@@ -25,6 +25,7 @@ export class ApiService {
 
   imagesSseEvent = new Subject<Message>();
   favMangas = new Subject<Manga[]>();
+  historyMangas = new Subject<Manga[]>();
 
   favMangaIds: number[];
 
@@ -112,6 +113,21 @@ export class ApiService {
     });
   }
 
+  getHistory() {
+    const url = `${this.serverUrl}user/history`;
+    this.http.get<Manga[]>(url).subscribe((result) => {
+      this.historyMangas.next(result);
+    });
+  }
+
+  addHistory(mangaId: number) {
+    const url = `${this.serverUrl}user/add_history/${mangaId}`;
+    this.http.post(url, {}).subscribe((result) => {
+      console.log(result);
+      this.getHistory();
+    });
+  }
+
   getFavs() {
     const url = `${this.serverUrl}user/favs`;
     this.http.get<Manga[]>(url).subscribe((result) => {
@@ -120,18 +136,19 @@ export class ApiService {
     });
   }
 
-  addFav(mangaId: number) {
+  addFav(mangaId: number, getHistory: boolean = false) {
     const url = `${this.serverUrl}user/add_fav/${mangaId}`;
-    this.http.post(url, {}).subscribe((result) => {
-      console.log(result);
+    this.http.post(url, {}).subscribe((result) => {      
       this.getFavs();
+      if (getHistory) this.getHistory();
     });
   }
 
-  delFav(mangaId: number) {
+  delFav(mangaId: number, getHistory: boolean = false) {
     const url = `${this.serverUrl}user/del_fav/${mangaId}`;
     this.http.delete(url).subscribe((result) => {
       this.getFavs();
+      if (getHistory) this.getHistory();
     });
   }
 }

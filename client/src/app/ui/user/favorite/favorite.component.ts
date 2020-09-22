@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApiService } from 'src/app/api.service';
 import { convertPySite, MangaSite } from 'src/app/manga-site.enum';
-import { Manga } from 'src/app/model/manga';
+import { Manga, MangaSimple } from 'src/app/model/manga';
 
 @Component({
   selector: 'app-favorite',
@@ -44,7 +44,7 @@ export class FavoriteComponent implements OnInit {
     this.router.navigate(['/manga-index']);
   }
 
-  onFavIconClicked(mangaId: number) {
-    this.api.delFav(mangaId);
+  onFavIconClicked(ms: MangaSimple) {    
+    this.api.delFav(ms.id);
   }
 }
