@@ -6,7 +6,9 @@
         <div class="row list-row">
             <div class="col-lg-4 col-lt-md-12 px-0" *ngFor="let manga of mangas">
                 <div class="card m-1 d-flex flex-row manga-card" (click)="onCardClicked(manga)">
-                    <img class="rounded-left" [src]="mediaServerUrl + manga.thum_img" alt="Card image cap">
+                    <div class="rounded-left thum-img-container">
+                        <img class="rounded-left thum-img" [src]="mediaServerUrl + manga.thum_img" alt="Card image cap">
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title text-truncate">
                             {{ manga.name }}
