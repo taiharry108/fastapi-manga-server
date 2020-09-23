@@ -1,12 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from routers import main, google_auth, user
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.logger import logger
+from fastapi.templating import Jinja2Templates
+from routers import main, google_auth, user
 from core.singleton_aiohttp import SingletonAiohttp
 from database import models
 from database.database import engine
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -35,6 +37,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+templates = Jinja2Templates(directory="templates")
+
+
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):    
+    return templates.TemplateResponse("index.html", {"request": request})
 
 app.include_router(
     main.router,

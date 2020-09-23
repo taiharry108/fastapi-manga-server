@@ -1,9 +1,10 @@
-@import "node_modules/bootstrap/scss/bootstrap.scss";
+@import "src/styles.scss";
+
 .manga-index-type-tabs-container,
 .index-table-container {
   max-width: 75%;
 }
-.chapter-link {  
+.chapter-link {
   color: $dark;
 }
 
