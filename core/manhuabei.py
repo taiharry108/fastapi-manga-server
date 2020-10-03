@@ -41,6 +41,7 @@ class ManHuaBei(MangaSite):
         self.img_domain = None
         with open('config/manhuabei_decrypt_config.json') as f:
             self.config = json.load(f)
+        self.has_referer = False
 
     async def get_img_domain(self) -> str:
         """Get image domain"""

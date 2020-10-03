@@ -65,7 +65,7 @@ class TestManHuaBei(aiounittest.AsyncTestCase):
         self.downloader.session = session
         count = 0
         manga = await self.site.get_index_page("https://www.manhuabei.com/manhua/haizeiwang/")
-        async for item_str in self.site.download_chapter(manga, MangaIndexTypeEnum.CHAPTER, 0):
+        async for item_str in self.site.download_chapter(manga, "https://www.manhuabei.com/manhua/haizeiwang/579078.html"):
             item = json.loads(item_str[6:-2])
             if len(item) == 0:
                 continue

@@ -20,6 +20,7 @@ class MangaSite(object):
         self._name = name
         self._url = url
         self.downloader = Downloader()
+        self.has_referer = True
 
     def get_manga(self, site: MangaSiteEnum, manga_name: Union[str, None], manga_url: str) -> Manga:
         return Manga(name=manga_name, url=manga_url, site=site)
@@ -42,7 +43,8 @@ class MangaSite(object):
 
     async def download_chapter(self, manga: Manga, page_url: HttpUrl) -> AsyncIterable[str]:
         img_urls = await self.get_page_urls(manga, page_url)
-        referer = page_url
+        referer = page_url if self.has_referer else None
+
         async for img_dict in self.downloader.get_images(img_urls, referer=referer):
             yield f'data: {json.dumps(img_dict)}\n\n'
 
