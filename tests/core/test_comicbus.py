@@ -9,6 +9,7 @@ class TestComicBus(aiounittest.AsyncTestCase):
     def setUp(self):
         self.site = ComicBus()
         self.downloader = self.site.downloader        
+        self.downloader.download_dir = Path("./static/test_images")
 
     @enter_session
     async def test_search_manga1(self, session):        
@@ -63,21 +64,15 @@ class TestComicBus(aiounittest.AsyncTestCase):
         self.assertEqual(
             img_urls[0], "https://img8.8comic.com/2/102/8001/001_my5.jpg")
         self.assertEqual(
-            img_urls[-1], "https://img8.8comic.com/2/102/8001/044_Sf8.jpg")
+            img_urls[-1].lower(), "https://img8.8comic.com/2/102/8001/044_Sf8.jpg".lower())
 
     @enter_session
     async def test_download_chapter(self, session):
         self.downloader.session = session
         count = 0
         manga = await self.site.get_index_page("https://comicbus.com/html/102.html/")
-        async for item_str in self.site.download_chapter(manga, "https://comicbus.live/online/a-102.html?ch=8001"):
-            item = json.loads(item_str[6:-2])
-            if len(item) == 0:
-                continue
-            idx = item['idx']
-            image_bytes = item['message']
+        async for item in self.site.download_chapter(manga, "https://comicbus.live/online/a-102.html?ch=8001"):
+            self.assertTrue("idx" in item)
+            self.assertTrue("pic_path" in item)
             count += 1
-            if idx == 0:
-                self.assertEqual(len(image_bytes), 207488)
-
         self.assertEqual(count, 44)

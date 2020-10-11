@@ -1,3 +1,7 @@
+from pathlib import Path
+from core.manga_site_factory import get_manga_site
+from core.manga_site import MangaSite
+from core.manga_site_enum import MangaSiteEnum
 from database.crud.user_crud import get_user_by_email
 from database.schemas import User
 from sqlalchemy.orm import Session
@@ -28,6 +32,16 @@ def override_get_db():
         yield db
     finally:
         db.close()
+
+
+def override_is_test() -> bool:
+    return True
+
+
+async def override_get_manga_site_common(site: MangaSiteEnum) -> MangaSite:
+    manga_site = get_manga_site(site)
+    manga_site.downloader.download_dir = Path('./static/test_images')
+    return manga_site
 
 
 def override_oauth2_scheme(request: Request):

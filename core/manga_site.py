@@ -1,8 +1,9 @@
-from typing import List, Union, AsyncIterable
+from core.downloader_factory import DownloaderFactory
+from pathlib import Path
+from typing import Dict, List, Union, AsyncIterable
 
 from pydantic.networks import HttpUrl
 from .manga import Manga
-from .manga_index_type_enum import MangaIndexTypeEnum
 from .downloader import Downloader
 from .manga_site_enum import MangaSiteEnum
 import json
@@ -14,12 +15,13 @@ class MangaSite(object):
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(MangaSite, cls).__new__(cls, *args, **kwargs)
+
         return cls._instance
 
     def __init__(self, name, url):
         self._name = name
         self._url = url
-        self.downloader = Downloader()
+        self.downloader = DownloaderFactory.get_downloader(name)
         self.has_referer = True
 
     def get_manga(self, site: MangaSiteEnum, manga_name: Union[str, None], manga_url: str) -> Manga:
@@ -41,14 +43,13 @@ class MangaSite(object):
     async def get_page_urls(self, manga: Manga, page_url: HttpUrl) -> List[str]:
         raise NotImplementedError
 
-    async def download_chapter(self, manga: Manga, page_url: HttpUrl) -> AsyncIterable[str]:
+    async def download_chapter(self, manga: Manga, page_url: HttpUrl) -> AsyncIterable[Dict]:
         img_urls = await self.get_page_urls(manga, page_url)
         referer = page_url if self.has_referer else None
+        download_path = Path(self._name) / manga.name
 
-        async for img_dict in self.downloader.get_images(img_urls, referer=referer):
-            yield f'data: {json.dumps(img_dict)}\n\n'
-
-        yield 'data: {}\n\n'
+        async for img_dict in self.downloader.get_images(img_urls, referer=referer, download_path=download_path):
+            yield img_dict
 
     name = property(get_name)
     url = property(get_url)

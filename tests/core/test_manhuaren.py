@@ -1,3 +1,4 @@
+from pathlib import Path
 import aiounittest
 from core.manhuaren import ManHuaRen
 from core.manga import MangaIndexTypeEnum
@@ -10,6 +11,7 @@ class TestManHuaRen(aiounittest.AsyncTestCase):
     def setUp(self):
         self.site = ManHuaRen()
         self.downloader = self.site.downloader
+        self.downloader.download_dir = Path("./static/test_images")
 
     @enter_session
     async def test_search_manga1(self, session):
@@ -64,18 +66,12 @@ class TestManHuaRen(aiounittest.AsyncTestCase):
             img_urls[0].startswith("https://manhua1101-104-250-139-219.cdnmanhua.net/3/2800/32738/finaleden_001cz_60683891.jpg"))
 
     @enter_session
-    async def test_download_chapter(self, session):
+    async def test_download_chapter2(self, session):
         self.downloader.session = session
         count = 0
-        manga = await self.site.get_index_page("https://www.manhuaren.com/manhua-haidaozhanji/")
-        async for item_str in self.site.download_chapter(manga, "https://www.manhuaren.com/m32738/"):
-            item = json.loads(item_str[6:-2])
-            if len(item) == 0:
-                continue
-            idx = item['idx']
-            image_bytes = item['message']
+        manga = await self.site.get_index_page("https://www.manhuaren.com/manhua-paiqiu/")
+        async for item in self.site.download_chapter(manga, "https://www.manhuaren.com/m117868/"):
+            self.assertTrue("idx" in item)
+            self.assertTrue("pic_path" in item)
             count += 1
-            if idx == 0:
-                self.assertEqual(len(image_bytes), 92324)
-
-        self.assertEqual(count, 99)
+        self.assertEqual(count, 15)

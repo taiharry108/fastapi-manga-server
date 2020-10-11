@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 def delete_all(db: Session) -> bool:
     db.query(models.Chapter).delete()
+    db.query(models.Page).delete()
 
     for user in db.query(models.User).all():
         user.fav_mangas = []

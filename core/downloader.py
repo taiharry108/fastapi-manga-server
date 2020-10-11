@@ -2,10 +2,8 @@ import base64
 from functools import wraps
 from aiohttp.client_reqrep import ClientResponse
 from bs4 import BeautifulSoup
-import aiohttp
 import asyncio
-from typing import Any, AsyncIterable, Callable, Dict, List, Tuple, Union
-from commons.utils import SingletonDecorator
+from typing import Any, AsyncIterable, Callable, Dict, List, Union
 from pathlib import Path
 import uuid
 from core.singleton_aiohttp import SingletonAiohttp
@@ -21,7 +19,7 @@ def get_resp(func: Callable) -> Callable:
     async def wrapped(self: "_Downloader", url: str, additional_headers: Dict[str, str] = {}, **kwargs):
         headers = {}
         headers.update(additional_headers)
-        headers.update(HEADERS)        
+        headers.update(HEADERS)
         async with self.session.get(url, headers=headers) as resp:
             if resp.status == 200:
                 return await func(self, resp, **kwargs)
@@ -35,7 +33,7 @@ class Downloader(object):
     def __init__(self):
         self.session = SingletonAiohttp.get_session()
         self.num_workers = 2
-        self.__download_dir = Path('./static/images')
+        self.download_dir = Path('./static/images')
 
     @get_resp
     async def get(self, resp: ClientResponse) -> str:
@@ -63,12 +61,17 @@ class Downloader(object):
         return await resp.json()
 
     @get_resp
-    async def get_img(self, resp: ClientResponse, download: bool =  False) -> Union[bytes, str]:
+    async def get_img(self, resp: ClientResponse, download: bool = False, download_path: Path = None) -> Union[bytes, str]:
         b = await resp.content.read()
         if download:
             content_type = resp.content_type
             if content_type.startswith('image'):
-                file_path = self.__download_dir / \
+                dir_path = self.download_dir
+                if download_path is not None:
+                    dir_path /= download_path
+
+                dir_path.mkdir(exist_ok=True, parents=True)
+                file_path = dir_path / \
                     f'{uuid.uuid4()}.{content_type.split("/")[-1]}'
                 with open(file_path, 'wb') as img_f:
                     img_f.write(b)
@@ -79,33 +82,35 @@ class Downloader(object):
         else:
             return b
 
-    async def get_images(self, urls: List[str], referer: str) -> AsyncIterable[Dict[str, Any]]:
+    async def _producer(self, in_q: asyncio.Queue, out_q: asyncio.Queue, referer: str, download_path: Path = None):
+        while True:
+            item = await in_q.get()
+
+            if item is None:
+                await in_q.put(None)
+                await out_q.put(None)
+                break
+            idx, url = item
+            additional_headers = {
+                "Referer": referer} if referer is not None else {}
+            img_bytes = await self.get_img(url, additional_headers, download=True, download_path=download_path)
+            await asyncio.sleep(0.3)
+            await out_q.put((idx, img_bytes))
+
+    async def _consumer(self, q: asyncio.Queue):
+        count = 0
+        while True:
+            item = await q.get()
+
+            if item is None:
+                count += 1
+            else:
+                yield item
+            if count == self.num_workers:
+                break
+
+    async def get_images(self, urls: List[str], referer: str, download_path=None) -> AsyncIterable[Dict[str, Any]]:
         """Request images and return async iterable dictionary with image bytes and index"""
-        async def producer(in_q, out_q):
-            while True:
-                item = await in_q.get()
-
-                if item is None:
-                    await in_q.put(None)
-                    await out_q.put(None)
-                    break
-                idx, url = item
-                additional_headers = {"Referer": referer} if referer is not None else {}
-                img_bytes = await self.get_img(url, additional_headers)
-                await asyncio.sleep(0.3)
-                await out_q.put((idx, img_bytes))
-
-        async def consumer(q):
-            count = 0
-            while True:
-                item = await q.get()
-
-                if item is None:
-                    count += 1
-                else:
-                    yield item
-                if count == self.num_workers:
-                    break
 
         prod_queue = asyncio.Queue()
         con_queue = asyncio.Queue()
@@ -115,11 +120,11 @@ class Downloader(object):
         await prod_queue.put(None)
 
         [asyncio.create_task(
-            producer(prod_queue, con_queue)) for _ in range(self.num_workers)]
+            self._producer(prod_queue, con_queue, referer, download_path=download_path)) for _ in range(self.num_workers)]
 
-        async for idx, img_bytes in consumer(con_queue):
-            encoded_str = base64.b64encode(img_bytes).decode("utf-8")
-            yield {"idx": idx, "message": encoded_str, "total": total}
-
-
-# Downloader = SingletonDecorator(_Downloader)
+        async for idx, img_bytes in self._consumer(con_queue):
+            if download_path is None:
+                encoded_str = base64.b64encode(img_bytes).decode("utf-8")
+                yield {"idx": idx, "message": encoded_str, "total": total}
+            else:
+                yield {"idx": idx, "pic_path": img_bytes, "total": total}
