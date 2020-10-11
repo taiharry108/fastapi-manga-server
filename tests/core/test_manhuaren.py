@@ -1,3 +1,4 @@
+from pathlib import Path
 import aiounittest
 from core.manhuaren import ManHuaRen
 from core.manga import MangaIndexTypeEnum
@@ -10,6 +11,8 @@ class TestManHuaRen(aiounittest.AsyncTestCase):
     def setUp(self):
         self.site = ManHuaRen()
         self.downloader = self.site.downloader
+        self.downloader.download_dir = Path("./static/test_images")
+
 
     @enter_session
     async def test_search_manga1(self, session):
@@ -79,3 +82,14 @@ class TestManHuaRen(aiounittest.AsyncTestCase):
                 self.assertEqual(len(image_bytes), 92324)
 
         self.assertEqual(count, 99)
+    
+    @enter_session
+    async def test_download_chapter2(self, session):
+        self.downloader.session = session
+        count = 0
+        manga = await self.site.get_index_page("https://www.manhuaren.com/manhua-paiqiu/")
+        async for item in self.site.download_chapter2(manga, "https://www.manhuaren.com/m117868/"):
+            self.assertTrue("idx" in item)
+            self.assertTrue("pic_path" in item)
+            count += 1
+        self.assertEqual(count, 15)

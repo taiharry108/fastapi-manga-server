@@ -1,8 +1,8 @@
+from pathlib import Path
 from typing import List, Union, AsyncIterable
 
 from pydantic.networks import HttpUrl
 from .manga import Manga
-from .manga_index_type_enum import MangaIndexTypeEnum
 from .downloader import Downloader
 from .manga_site_enum import MangaSiteEnum
 import json
@@ -49,6 +49,14 @@ class MangaSite(object):
             yield f'data: {json.dumps(img_dict)}\n\n'
 
         yield 'data: {}\n\n'
+    
+    async def download_chapter2(self, manga: Manga, page_url: HttpUrl) -> AsyncIterable[str]:
+        img_urls = await self.get_page_urls(manga, page_url)
+        referer = page_url if self.has_referer else None
+        download_path = Path(self._name) / manga.name
+
+        async for img_dict in self.downloader.get_images(img_urls, referer=referer, download_path=download_path):
+            yield img_dict
 
     name = property(get_name)
     url = property(get_url)
