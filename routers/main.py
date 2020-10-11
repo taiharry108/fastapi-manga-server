@@ -1,3 +1,4 @@
+from core.page import Page
 from core.manga_site import MangaSite
 from core.utils import get_manga_site_common
 from pydantic.networks import HttpUrl
@@ -24,7 +25,10 @@ catalog = MangaCatalog()
 
 
 @router.get("/search/{site}/{search_keyword}", response_model=List[MangaBase])
-async def search_manga(site: MangaSiteEnum, search_keyword: str, db: Session = Depends(get_db), manga_site: MangaSite = Depends(get_manga_site_common)):
+async def search_manga(site: MangaSiteEnum,
+                       search_keyword: str,
+                       db: Session = Depends(get_db),
+                       manga_site: MangaSite = Depends(get_manga_site_common)):
     mangas = await manga_site.search_manga(search_keyword)
     manga_crud.create_mangas(db, mangas, site)
     return mangas
@@ -37,9 +41,12 @@ def read_img_to_b64(file_path: str) -> str:
 
 
 @router.get('/index/{site}/{manga_page}', response_model=Manga)
-async def get_index(site: MangaSiteEnum, manga_page: str, db: Session = Depends(get_db), manga_site: MangaSite = Depends(get_manga_site_common)):
+async def get_index(site: MangaSiteEnum,
+                    manga_page: str,
+                    db: Session = Depends(get_db),
+                    manga_site: MangaSite = Depends(get_manga_site_common)):
     url = get_idx_page(site, manga_page)
-    manga = catalog.get_manga(site, url)
+    manga = catalog.get_manga(db, site, url)
 
     need_update = manga.last_update is None or manga.last_update + \
         timedelta(days=3) < datetime.now()
@@ -62,31 +69,28 @@ async def get_index(site: MangaSiteEnum, manga_page: str, db: Session = Depends(
     return manga
 
 
-@router.get('/chapter/{site}/{manga_page}')
-async def get_chapter(site: MangaSiteEnum, manga_page: str, page_url: HttpUrl, manga_site: MangaSite = Depends(get_manga_site_common)):
+@router.get('/chapter/{site}/{manga_page}', response_model=List[Page])
+async def get_chapter(site: MangaSiteEnum, manga_page: str,
+                      page_url: HttpUrl,
+                      manga_site: MangaSite = Depends(get_manga_site_common),
+                      db: Session = Depends(get_db)):
+    pages = chapter_crud.get_chapter_pages(db, page_url)
+    if pages:
+        return [Page.from_orm(page) for page in pages]
     url = get_idx_page(site, manga_page)
 
-    manga = catalog.get_manga(site, url)
-    if manga is None or not manga.idx_retrieved:
-        manga = await manga_site.get_index_page(url)
-
-    return StreamingResponse(manga_site.download_chapter(manga, page_url), media_type="text/event-stream")
-
-
-@router.get('/chapter2/{site}/{manga_page}')
-async def get_chapter2(site: MangaSiteEnum, manga_page: str, page_url: HttpUrl, manga_site: MangaSite = Depends(get_manga_site_common)):
-    url = get_idx_page(site, manga_page)
-
-    manga = catalog.get_manga(site, url)
+    manga = catalog.get_manga(db, site, url)
     if manga is None or not manga.idx_retrieved:
         manga = await manga_site.get_index_page(url)
 
     results = []
 
-    async for img_dict in manga_site.download_chapter2(manga, page_url):
-        results.append(img_dict)
+    async for img_dict in manga_site.download_chapter(manga, page_url):
+        results.append(Page(**img_dict))
 
-    return results
+    chapter_crud.add_pages_to_chapter(db, page_url, results)
+
+    return sorted(results, key=lambda item: item.idx)
 
 
 @router.delete('/all')

@@ -8,6 +8,7 @@ import { MangaIndexType } from './model/manga-index-type.enum';
 import { SseService, Message } from './sse.service';
 import { MangaSite } from './manga-site.enum';
 import { Auth } from './model/auth';
+import { Page } from './model/page';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,7 @@ export class ApiService {
   mangaWIthIndexResultSubject = new Subject<Manga>();
 
   imagesSseEvent = new Subject<Message>();
+  pages = new Subject<Page[]>();
   favMangas = new Subject<Manga[]>();
   historyMangas = new Subject<Manga[]>();
 
@@ -108,9 +110,12 @@ export class ApiService {
     const splits = mangaUrl.split('/');
     const mangaPage = splits[splits.length - 2];
     const url = `${this.serverUrl}chapter/${this.site}/${mangaPage}?page_url=${pageUrl}`;
-    this.sseService.getServerSentEvent(url).subscribe((message) => {
-      this.imagesSseEvent.next(message);
+    this.http.get<Page[]>(url).subscribe((result) => {      
+      this.pages.next(result);
     });
+    // this.sseService.getServerSentEvent(url).subscribe((message) => {
+    //   this.imagesSseEvent.next(message);
+    // });
   }
 
   getHistory() {

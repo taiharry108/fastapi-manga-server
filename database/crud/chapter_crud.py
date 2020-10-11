@@ -64,3 +64,10 @@ def add_pages_to_chapter(db: Session, url: HttpUrl, pages: List[Page]):
     db.bulk_save_objects(db_pages)
     db.commit()
     return True
+
+
+def get_chapter_pages(db: Session, url: HttpUrl) -> List[models.Page]:
+    Page = models.Page
+    db_chap = get_chapter_by_url(db, url)
+    chapter_id = db_chap.id
+    return db.query(Page).filter(Page.chapter_id == chapter_id).order_by(Page.idx).all()

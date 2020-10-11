@@ -1,3 +1,4 @@
+from database.crud import chapter_crud
 from core.utils import get_manga_site_common, is_test
 from database.crud import manga_site_crud
 from database.crud import utils
@@ -54,20 +55,47 @@ class TestMain(unittest.TestCase):
             self.assertEqual(result['finished'], True)
             self.assertIsNotNone(result['id'])
 
+    # def test_get_chapter(self):
+    #     """Test get chapter on MHR"""
+    #     with TestClient(app) as client:
+    #         response = client.get(
+    #             "/api/chapter/manhuaren/manhua-huoyingrenzhe-naruto", params={'page_url': "https://www.manhuaren.com/m208255/"})
+    #         self.assertEqual(response.status_code, 200)
+    
     def test_get_chapter(self):
         """Test get chapter on MHR"""
+        page_url = "https://www.manhuaren.com/m424056/"
         with TestClient(app) as client:
+            client.get("/api/search/manhuaren/海盜")
+            client.get(
+                "/api/index/manhuaren/manhua-haidaozhanji")
             response = client.get(
-                "/api/chapter/manhuaren/manhua-huoyingrenzhe-naruto", params={'page_url': "https://www.manhuaren.com/m208255/"})
-            self.assertEqual(response.status_code, 200)
-    
-    def test_get_chapter2(self):
-        """Test get chapter on MHR"""
-        with TestClient(app) as client:
-            response = client.get(
-                "/api/chapter2/manhuaren/manhua-haidaozhanji", params={'page_url': "https://www.manhuaren.com/m424056/"})
+                "/api/chapter/manhuaren/manhua-haidaozhanji", params={'page_url': page_url})
             self.assertEqual(response.status_code, 200)
             results = response.json()
             self.assertEqual(len(results), 8)
-
-
+            for item in results:
+                self.assertTrue("idx" in item)
+                self.assertTrue("total" in item)
+                self.assertTrue("pic_path" in item)
+            
+            db_pages = chapter_crud.get_chapter_pages(self.db, page_url)
+            self.assertEqual(len(db_pages), 8)
+        
+    def test_get_chapter_twice(self):
+        """Test get chapter twice on MHR get same result"""
+        page_url = "https://www.manhuaren.com/m424056/"
+        with TestClient(app) as client:
+            client.get("/api/search/manhuaren/海盜")
+            client.get(
+                "/api/index/manhuaren/manhua-haidaozhanji")
+            response = client.get(
+                "/api/chapter/manhuaren/manhua-haidaozhanji", params={'page_url': page_url})
+            response2 = client.get(
+                "/api/chapter/manhuaren/manhua-haidaozhanji", params={'page_url': page_url})
+            self.assertEqual(response.status_code, 200)
+            results = response.json()
+            results2 = response2.json()
+            result_dict = {item['idx']: item for item in results}
+            for item in results2:
+                self.assertEqual(result_dict[item['idx']], item)

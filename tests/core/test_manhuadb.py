@@ -10,6 +10,7 @@ class TestManHuaDB(aiounittest.AsyncTestCase):
     def setUp(self):
         self.site = ManHuaDB()
         self.downloader = self.site.downloader
+        self.downloader.download_dir = Path("./static/test_images")
 
     @enter_session
     async def test_search_manga1(self, session):
@@ -69,14 +70,8 @@ class TestManHuaDB(aiounittest.AsyncTestCase):
         self.downloader.session = session
         count = 0
         manga = await self.site.get_index_page("https://www.manhuadb.com/manhua/2661")
-        async for item_str in self.site.download_chapter(manga, "https://www.manhuadb.com/manhua/2661/3283_59202.html"):
-            item = json.loads(item_str[6:-2])
-            if len(item) == 0:
-                continue
-            idx = item['idx']
-            image_bytes = item['message']
+        async for item in self.site.download_chapter(manga, "https://www.manhuadb.com/manhua/2661/3283_59202.html"):
+            self.assertTrue("idx" in item)
+            self.assertTrue("pic_path" in item)
             count += 1
-            if idx == 0:
-                self.assertEqual(len(image_bytes), 332272)
-
         self.assertEqual(count, 30)

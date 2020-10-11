@@ -69,7 +69,7 @@ def get_history_mangas(db: Session, user_id: int) -> List[models.Manga]:
     return manga_crud.get_mangas_by_ids(db, history_manga_ids)
 
 
-def manga_in_user_history(db: Session, manga_id: int, user_id: int) -> bool:
+def manga_in_user_history(db: Session, manga_id: int, user_id: int) -> models.History:
     History = models.History
     return db.query(History).filter(History.manga_id == manga_id, History.user_id == user_id).first()
 

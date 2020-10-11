@@ -78,3 +78,4 @@ class Page(Base):
     chapter = relationship("Chapter", back_populates="pages")
     pic_path = Column(String, index=True, unique=True)
     idx = Column(Integer, index=True)
+    total = Column(Integer)
