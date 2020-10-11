@@ -144,3 +144,6 @@ ignore*
 client_secret*
 static/
 templates/
+chromedriver
+.DS_Store
+alembic/

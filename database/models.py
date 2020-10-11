@@ -1,3 +1,4 @@
+from enum import unique
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Enum, Table
 from sqlalchemy.orm import relationship
 
@@ -66,3 +67,14 @@ class Chapter(Base):
 
     manga_id = Column(Integer, ForeignKey("mangas.id"))
     manga = relationship("Manga", back_populates="chapters")
+    pages = relationship("Page", back_populates="chapter")
+
+
+class Page(Base):
+    __tablename__ = "pages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    chapter_id = Column(Integer, ForeignKey("chapters.id"))
+    chapter = relationship("Chapter", back_populates="pages")
+    pic_path = Column(String, index=True, unique=True)
+    idx = Column(Integer, index=True)
