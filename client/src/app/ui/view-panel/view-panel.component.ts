@@ -20,32 +20,33 @@ export class ViewPanelComponent implements OnInit, OnDestroy {
   }
   ngUnsubscribe = new Subject<void>();
   observable: Observable<number>;
-  messages: any[];
+  pages: any[];
   pages$: Observable<Page[]>;
   mediaServerUrl: string;
 
   ngOnInit(): void {
     console.log('in view panel init');
-    this.messages = null;
+    this.pages = null;
     this.mediaServerUrl = this.api.mediaServerUrl;
-    this.pages$ = this.api.pages;
-    // this.api.imagesSseEvent
-    //   .pipe(takeUntil(this.ngUnsubscribe))
-    //   .subscribe((message) => {
-    //     const total = message.total;
-    //     if (
-    //       this.messages === null ||
-    //       this.messages.length !== total ||
-    //       this.messages[message.idx] !== undefined
-    //     ) {
-    //       this.messages = new Array(total);
-    //     }
-    //     this.messages[message.idx] = this.sanitizer.bypassSecurityTrustUrl(
-    //       'data:image/jpeg;base64,' + message.message
-    //     );
+    // this.pages$ = this.api.pages;
+    this.api.imagesSseEvent
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((page) => {
+        console.log(page);
+        const total = page.total;
+        if (
+          this.pages === null ||
+          this.pages.length !== total ||
+          this.pages[page.idx] !== undefined
+        ) {
+          this.pages = new Array(total);
+        }
+        this.pages[page.idx] = this.sanitizer.bypassSecurityTrustUrl(
+          this.mediaServerUrl + page.pic_path
+        );
 
-    //     this.cd.detectChanges();
-    //   });
+        this.cd.detectChanges();
+      });
   }
 
   ngOnDestroy(): void {

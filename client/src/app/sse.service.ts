@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Page } from './model/page';
 
 export interface Message {
   message: string;
@@ -13,12 +14,12 @@ export interface Message {
 export class SseService {
   constructor() {}
 
-  getServerSentEvent(url: string): Observable<Message> {
+  getServerSentEvent(url: string): Observable<Page> {
     return Observable.create((observer) => {
       const eventSource = this.getEventSource(url);
 
       eventSource.onmessage = event => {
-        const data = JSON.parse(event.data);
+        const data = JSON.parse(event.data);        
         if (event.data !== "{}")
           { 
             observer.next(data);
@@ -31,6 +32,7 @@ export class SseService {
       }
 
       eventSource.onerror = error => {
+          console.log(error);
           observer.error(error);
       }      
     });

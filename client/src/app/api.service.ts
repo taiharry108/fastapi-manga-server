@@ -24,7 +24,7 @@ export class ApiService {
   searchResultSubject = new Subject<SearchResult[]>();
   mangaWIthIndexResultSubject = new Subject<Manga>();
 
-  imagesSseEvent = new Subject<Message>();
+  imagesSseEvent = new Subject<Page>();
   pages = new Subject<Page[]>();
   favMangas = new Subject<Manga[]>();
   historyMangas = new Subject<Manga[]>();
@@ -110,12 +110,12 @@ export class ApiService {
     const splits = mangaUrl.split('/');
     const mangaPage = splits[splits.length - 2];
     const url = `${this.serverUrl}chapter/${this.site}/${mangaPage}?page_url=${pageUrl}`;
-    this.http.get<Page[]>(url).subscribe((result) => {      
-      this.pages.next(result);
-    });
-    // this.sseService.getServerSentEvent(url).subscribe((message) => {
-    //   this.imagesSseEvent.next(message);
+    // this.http.get<Page[]>(url).subscribe((result) => {      
+    //   this.pages.next(result);
     // });
+    this.sseService.getServerSentEvent(url).subscribe((page) => {
+      this.imagesSseEvent.next(page);
+    });
   }
 
   getHistory() {
@@ -127,8 +127,7 @@ export class ApiService {
 
   addHistory(mangaId: number) {
     const url = `${this.serverUrl}user/add_history/${mangaId}`;
-    this.http.post(url, {}).subscribe((result) => {
-      console.log(result);
+    this.http.post(url, {}).subscribe((result) => {      
       this.getHistory();
     });
   }

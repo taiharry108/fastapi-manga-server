@@ -20,6 +20,7 @@ from database.utils import get_db
 from database import models
 
 import base64
+import json
 router = APIRouter()
 catalog = MangaCatalog()
 
@@ -69,28 +70,35 @@ async def get_index(site: MangaSiteEnum,
     return manga
 
 
-@router.get('/chapter/{site}/{manga_page}', response_model=List[Page])
+@router.get('/chapter/{site}/{manga_page}')
 async def get_chapter(site: MangaSiteEnum, manga_page: str,
                       page_url: HttpUrl,
                       manga_site: MangaSite = Depends(get_manga_site_common),
                       db: Session = Depends(get_db)):
     pages = chapter_crud.get_chapter_pages(db, page_url)
     if pages:
-        return [Page.from_orm(page) for page in pages]
-    url = get_idx_page(site, manga_page)
+        pages = [Page.from_orm(page) for page in pages]
+    else:
+        url = get_idx_page(site, manga_page)
 
-    manga = catalog.get_manga(db, site, url)
-    if manga is None or not manga.idx_retrieved:
-        manga = await manga_site.get_index_page(url)
+        manga = catalog.get_manga(db, site, url)
+        if manga is None or not manga.idx_retrieved:
+            manga = await manga_site.get_index_page(url)
 
-    results = []
+        pages = []
 
-    async for img_dict in manga_site.download_chapter(manga, page_url):
-        results.append(Page(**img_dict))
+    async def img_gen():        
+        if pages:            
+            for page in pages:
+                yield f'data: {json.dumps(page.dict())}\n\n'
+        else:
+            async for img_dict in manga_site.download_chapter(manga, page_url):
+                pages.append(Page(**img_dict))
+                yield f'data: {json.dumps(img_dict)}\n\n'                
+            chapter_crud.add_pages_to_chapter(db, page_url, pages)
+        yield 'data: {}\n\n'
 
-    chapter_crud.add_pages_to_chapter(db, page_url, results)
-
-    return sorted(results, key=lambda item: item.idx)
+    return StreamingResponse(img_gen(), media_type="text/event-stream")
 
 
 @router.delete('/all')
@@ -99,6 +107,13 @@ async def delete_all(db: Session = Depends(get_db)):
     for site in list(MangaSiteEnum):
         site = manga_site_crud.create_manga_site(db, site)
     return success
+
+
+@router.delete('/all_pages')
+async def delete_all_pages(db: Session = Depends(get_db)):
+    db.query(models.Page).delete()
+    db.commit()
+    return True
 
 
 @router.get('/test')
