@@ -1,3 +1,5 @@
+from core.manga_site import MangaSite
+from core.utils import get_manga_site_common
 from pydantic.networks import HttpUrl
 from database.crud import utils
 from datetime import datetime, timedelta
@@ -9,9 +11,8 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from core.manga_catalog import MangaCatalog
-from core.manga_site_factory import get_idx_page, get_manga_site
+from core.manga_site_factory import get_idx_page
 from core.manga_site_enum import MangaSiteEnum
-from core.manga_index_type_enum import MangaIndexTypeEnum
 from core.manga import Manga, MangaBase
 from database.crud import manga_crud, chapter_crud, manga_site_crud
 from database.utils import get_db
@@ -23,8 +24,7 @@ catalog = MangaCatalog()
 
 
 @router.get("/search/{site}/{search_keyword}", response_model=List[MangaBase])
-async def search_manga(site: MangaSiteEnum, search_keyword: str, db: Session = Depends(get_db)):
-    manga_site = get_manga_site(site)
+async def search_manga(site: MangaSiteEnum, search_keyword: str, db: Session = Depends(get_db), manga_site: MangaSite = Depends(get_manga_site_common)):
     mangas = await manga_site.search_manga(search_keyword)
     manga_crud.create_mangas(db, mangas, site)
     return mangas
@@ -37,8 +37,7 @@ def read_img_to_b64(file_path: str) -> str:
 
 
 @router.get('/index/{site}/{manga_page}', response_model=Manga)
-async def get_index(site: MangaSiteEnum, manga_page: str, db: Session = Depends(get_db)):
-    manga_site = get_manga_site(site)
+async def get_index(site: MangaSiteEnum, manga_page: str, db: Session = Depends(get_db), manga_site: MangaSite = Depends(get_manga_site_common)):
     url = get_idx_page(site, manga_page)
     manga = catalog.get_manga(site, url)
 
@@ -56,7 +55,7 @@ async def get_index(site: MangaSiteEnum, manga_page: str, db: Session = Depends(
 
     if manga.thum_img is not None:
         manga.thum_img = read_img_to_b64(manga.thum_img)
-    
+
     for m_type, chapters in manga.chapters.items():
         chapters.reverse()
 
@@ -64,8 +63,7 @@ async def get_index(site: MangaSiteEnum, manga_page: str, db: Session = Depends(
 
 
 @router.get('/chapter/{site}/{manga_page}')
-async def get_chapter(site: MangaSiteEnum, manga_page: str, page_url: HttpUrl):
-    manga_site = get_manga_site(site)
+async def get_chapter(site: MangaSiteEnum, manga_page: str, page_url: HttpUrl, manga_site: MangaSite = Depends(get_manga_site_common)):
     url = get_idx_page(site, manga_page)
 
     manga = catalog.get_manga(site, url)
@@ -73,6 +71,22 @@ async def get_chapter(site: MangaSiteEnum, manga_page: str, page_url: HttpUrl):
         manga = await manga_site.get_index_page(url)
 
     return StreamingResponse(manga_site.download_chapter(manga, page_url), media_type="text/event-stream")
+
+
+@router.get('/chapter2/{site}/{manga_page}')
+async def get_chapter2(site: MangaSiteEnum, manga_page: str, page_url: HttpUrl, manga_site: MangaSite = Depends(get_manga_site_common)):
+    url = get_idx_page(site, manga_page)
+
+    manga = catalog.get_manga(site, url)
+    if manga is None or not manga.idx_retrieved:
+        manga = await manga_site.get_index_page(url)
+
+    results = []
+
+    async for img_dict in manga_site.download_chapter2(manga, page_url):
+        results.append(img_dict)
+
+    return results
 
 
 @router.delete('/all')
@@ -85,7 +99,5 @@ async def delete_all(db: Session = Depends(get_db)):
 
 @router.get('/test')
 async def test(db: Session = Depends(get_db)):
-    db_user = db.query(models.User).first()    
+    db_user = db.query(models.User).first()
     return True
-
-

@@ -1,8 +1,9 @@
+from core.utils import get_manga_site_common, is_test
 from database.crud import manga_site_crud
 from database.crud import utils
 from database.crud import manga_crud
 from database.utils import get_db
-from .utils import override_get_db
+from .utils import override_get_db, override_get_manga_site_common, override_is_test
 from main import app
 import unittest
 from fastapi.testclient import TestClient
@@ -13,6 +14,8 @@ from starlette.config import Config
 config = Config('.env')
 
 app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[is_test] = override_is_test
+app.dependency_overrides[get_manga_site_common] = override_get_manga_site_common
 
 
 class TestMain(unittest.TestCase):
@@ -57,3 +60,14 @@ class TestMain(unittest.TestCase):
             response = client.get(
                 "/api/chapter/manhuaren/manhua-huoyingrenzhe-naruto", params={'page_url': "https://www.manhuaren.com/m208255/"})
             self.assertEqual(response.status_code, 200)
+    
+    def test_get_chapter2(self):
+        """Test get chapter on MHR"""
+        with TestClient(app) as client:
+            response = client.get(
+                "/api/chapter2/manhuaren/manhua-haidaozhanji", params={'page_url': "https://www.manhuaren.com/m424056/"})
+            self.assertEqual(response.status_code, 200)
+            results = response.json()
+            self.assertEqual(len(results), 8)
+
+

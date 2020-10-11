@@ -19,7 +19,7 @@ def get_resp(func: Callable) -> Callable:
     async def wrapped(self: "_Downloader", url: str, additional_headers: Dict[str, str] = {}, **kwargs):
         headers = {}
         headers.update(additional_headers)
-        headers.update(HEADERS)        
+        headers.update(HEADERS)
         async with self.session.get(url, headers=headers) as resp:
             if resp.status == 200:
                 return await func(self, resp, **kwargs)
@@ -61,7 +61,7 @@ class Downloader(object):
         return await resp.json()
 
     @get_resp
-    async def get_img(self, resp: ClientResponse, download: bool =  False, download_path: Path = None) -> Union[bytes, str]:
+    async def get_img(self, resp: ClientResponse, download: bool = False, download_path: Path = None) -> Union[bytes, str]:
         b = await resp.content.read()
         if download:
             content_type = resp.content_type
@@ -69,7 +69,7 @@ class Downloader(object):
                 dir_path = self.download_dir
                 if download_path is not None:
                     dir_path /= download_path
-                
+
                 dir_path.mkdir(exist_ok=True, parents=True)
                 file_path = dir_path / \
                     f'{uuid.uuid4()}.{content_type.split("/")[-1]}'
@@ -81,7 +81,7 @@ class Downloader(object):
                 return b
         else:
             return b
-        
+
     async def _producer(self, in_q: asyncio.Queue, out_q: asyncio.Queue, referer: str, download_path: Path = None):
         while True:
             item = await in_q.get()
@@ -96,7 +96,7 @@ class Downloader(object):
             img_bytes = await self.get_img(url, additional_headers, download=True, download_path=download_path)
             await asyncio.sleep(0.3)
             await out_q.put((idx, img_bytes))
-    
+
     async def _consumer(self, q: asyncio.Queue):
         count = 0
         while True:
@@ -121,13 +121,10 @@ class Downloader(object):
 
         [asyncio.create_task(
             self._producer(prod_queue, con_queue, referer, download_path=download_path)) for _ in range(self.num_workers)]
-        
+
         async for idx, img_bytes in self._consumer(con_queue):
             if download_path is None:
                 encoded_str = base64.b64encode(img_bytes).decode("utf-8")
                 yield {"idx": idx, "message": encoded_str, "total": total}
             else:
                 yield {"idx": idx, "pic_path": img_bytes, "total": total}
-
-
-# Downloader = SingletonDecorator(_Downloader)

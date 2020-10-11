@@ -1,11 +1,11 @@
+from core.downloader_factory import DownloaderFactory
 import aiounittest
-from core.downloader import Downloader
 from core.utils import enter_session
 
 
 class TestDownloader(aiounittest.AsyncTestCase):
     def setUp(self):
-        self.downloader = Downloader()
+        self.downloader = DownloaderFactory.get_downloader("test")
     
     @enter_session
     async def test_get_soup(self, session):

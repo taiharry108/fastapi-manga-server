@@ -8,6 +8,7 @@ from core.manga import Manga
 from .manga_crud import get_manga_by_url, create_manga
 from pydantic import HttpUrl
 
+
 def create_chapter(db: Session, chapter: Chapter, manga_id: int, m_type: MangaIndexTypeEnum):
     db_chap = models.Chapter(
         **chapter.dict(), manga_id=manga_id, type=m_type.value)
@@ -53,11 +54,13 @@ def get_chapter_by_url(db: Session, url: HttpUrl) -> models.Chapter:
         models.Chapter.page_url == url)
     return query_result.first()
 
+
 def add_pages_to_chapter(db: Session, url: HttpUrl, pages: List[Page]):
     db_chap = get_chapter_by_url(db, url)
     chapter_id = db_chap.id
     db_pages = []
-    db_pages = [models.Page(**page.dict(), chapter_id=chapter_id) for page in pages]
+    db_pages = [models.Page(**page.dict(), chapter_id=chapter_id)
+                for page in pages]
     db.bulk_save_objects(db_pages)
     db.commit()
     return True

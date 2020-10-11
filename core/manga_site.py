@@ -1,5 +1,6 @@
+from core.downloader_factory import DownloaderFactory
 from pathlib import Path
-from typing import List, Union, AsyncIterable
+from typing import Dict, List, Union, AsyncIterable
 
 from pydantic.networks import HttpUrl
 from .manga import Manga
@@ -14,12 +15,13 @@ class MangaSite(object):
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(MangaSite, cls).__new__(cls, *args, **kwargs)
+        
         return cls._instance
 
     def __init__(self, name, url):
         self._name = name
-        self._url = url
-        self.downloader = Downloader()
+        self._url = url        
+        self.downloader = DownloaderFactory.get_downloader(name)
         self.has_referer = True
 
     def get_manga(self, site: MangaSiteEnum, manga_name: Union[str, None], manga_url: str) -> Manga:
@@ -50,7 +52,7 @@ class MangaSite(object):
 
         yield 'data: {}\n\n'
     
-    async def download_chapter2(self, manga: Manga, page_url: HttpUrl) -> AsyncIterable[str]:
+    async def download_chapter2(self, manga: Manga, page_url: HttpUrl) -> AsyncIterable[Dict]:
         img_urls = await self.get_page_urls(manga, page_url)
         referer = page_url if self.has_referer else None
         download_path = Path(self._name) / manga.name
