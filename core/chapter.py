@@ -1,6 +1,12 @@
 from pydantic import BaseModel, HttpUrl
 
-class Chapter(BaseModel):
-    title: str
+
+class ChapterIn(BaseModel):
     page_url: HttpUrl
 
+
+class Chapter(ChapterIn):
+    title: str
+
+    class Config:
+        orm_mode = True

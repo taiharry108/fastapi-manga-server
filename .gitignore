@@ -146,4 +146,4 @@ static/
 templates/
 chromedriver
 .DS_Store
-alembic/
+alembic*/

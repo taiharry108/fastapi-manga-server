@@ -111,7 +111,7 @@ async def delete_all(db: Session = Depends(get_db)):
 
 @router.delete('/all_pages')
 async def delete_all_pages(db: Session = Depends(get_db)):
-    db.query(models.Page).delete()
+    db.query(models.Page).delete()  
     db.commit()
     return True
 

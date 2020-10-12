@@ -1,3 +1,7 @@
+from database.crud import chapter_crud
+from pydantic.networks import HttpUrl
+from database.models import Chapter
+from core import chapter
 from database.crud.crud_enum import CrudEnum
 from database.crud import manga_crud
 from datetime import datetime
@@ -74,17 +78,32 @@ def manga_in_user_history(db: Session, manga_id: int, user_id: int) -> models.Hi
     return db.query(History).filter(History.manga_id == manga_id, History.user_id == user_id).first()
 
 
-def add_history_manga(db: Session, manga_id: int, user_id: int) -> CrudEnum:
-    History = models.History
+def update_last_read_chapter(db: Session, manga_id: int, user_id: int, page_url: HttpUrl) -> CrudEnum:
+    db_hist = manga_in_user_history(db, manga_id, user_id)
+    db_chap = chapter_crud.get_chapter_by_url(db, page_url)
+    status = CrudEnum.Failed
 
+    if db_hist is not None and db_chap is not None:        
+        db_hist.chapter = db_chap
+        status = CrudEnum.Updated
+        db.commit()
+    return status
+
+
+def get_last_read_chapter(db: Session, manga_id: int, user_id: int) -> Chapter:
+    db_hist = manga_in_user_history(db, manga_id, user_id)
+    return db_hist.chapter if db_hist is not None else None
+
+
+def add_history_manga(db: Session, manga_id: int, user_id: int) -> CrudEnum:
     db_manga = db.query(models.Manga).get(manga_id)
     db_user = db.query(models.User).get(user_id)
 
-    if db_manga is None or db_user is None:
-        status = CrudEnum.Failed
-    else:
-        db_hist = db.query(History).filter(History.manga_id ==
-                                           manga_id, History.user_id == user_id).first()
+    status = CrudEnum.Failed
+
+    if db_manga is not None and db_user is not None:
+        db_hist = manga_in_user_history(db, manga_id, user_id)
+
         if db_hist is None:
             db_hist = models.History(
                 last_added=datetime.now(), user=db_user, manga=db_manga)

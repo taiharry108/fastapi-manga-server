@@ -1,3 +1,4 @@
+from core.chapter import Chapter, ChapterIn
 from database.crud.crud_enum import CrudEnum
 from commons.utils import construct_simple_manga
 from fastapi import Response, status
@@ -18,16 +19,22 @@ async def read_users_me(current_user: schemas.User = Depends(get_current_active_
 
 
 @router.post("/add_fav/{manga_id}", tags=["users"], status_code=201)
-async def add_fav(response: Response, current_user: schemas.User = Depends(get_current_active_user), db: Session = Depends(get_db), manga_id: int = None):
+async def add_fav(response: Response,
+                  current_user: schemas.User = Depends(get_current_active_user),
+                  db: Session = Depends(get_db),
+                  manga_id: int = None):
     user_id = current_user.id
-    success = user_crud.add_fav_manga(db, manga_id, user_id)    
+    success = user_crud.add_fav_manga(db, manga_id, user_id)
     if not success:
         response.status_code = status.HTTP_406_NOT_ACCEPTABLE
     return {"success": success}
 
 
 @router.delete("/del_fav/{manga_id}", tags=["users"], status_code=202)
-async def del_fav(response: Response, current_user: schemas.User = Depends(get_current_active_user), db: Session = Depends(get_db), manga_id: int = None):
+async def del_fav(response: Response,
+                  current_user: schemas.User = Depends(get_current_active_user),
+                  db: Session = Depends(get_db),
+                  manga_id: int = None):
     user_id = current_user.id
     success = user_crud.del_fav_manga(db, manga_id, user_id)
     if not success:
@@ -52,8 +59,11 @@ async def get_history(current_user: schemas.User = Depends(get_current_active_us
 
 
 @router.post("/add_history/{manga_id}", tags=["users"], status_code=201)
-async def add_history(response: Response, current_user: schemas.User = Depends(get_current_active_user), db: Session = Depends(get_db), manga_id: int = None):
-    user_id = current_user.id    
+async def add_history(response: Response,
+                      current_user: schemas.User = Depends(get_current_active_user),
+                      db: Session = Depends(get_db),
+                      manga_id: int = None):
+    user_id = current_user.id
     success = user_crud.add_history_manga(db, manga_id, user_id)
     if success == CrudEnum.Created:
         response.status_code = status.HTTP_201_CREATED
@@ -66,9 +76,39 @@ async def add_history(response: Response, current_user: schemas.User = Depends(g
 
 
 @router.delete("/del_history/{manga_id}", tags=["users"], status_code=202)
-async def del_history(response: Response, current_user: schemas.User = Depends(get_current_active_user), db: Session = Depends(get_db), manga_id: int = None):
+async def del_history(response: Response,
+                      current_user: schemas.User = Depends(get_current_active_user),
+                      db: Session = Depends(get_db),
+                      manga_id: int = None):
     user_id = current_user.id
     success = user_crud.del_history_manga(db, manga_id, user_id)
     if success == CrudEnum.Failed:
         response.status_code = status.HTTP_406_NOT_ACCEPTABLE
     return {"success": success}
+
+
+@router.post("/update_history/{manga_id}", tags=["users"], status_code=202)
+async def update_history(response: Response,
+                         chapter: ChapterIn,
+                         current_user: schemas.User = Depends(get_current_active_user),
+                         db: Session = Depends(get_db),
+                         manga_id: int = None,
+                         ):
+    user_id = current_user.id    
+    success = user_crud.update_last_read_chapter(
+        db, manga_id, user_id, page_url=chapter.page_url)
+
+    if success == CrudEnum.Failed:
+        response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+    return {"success": success}
+
+
+@router.get("/get_last_read/{manga_id}", tags=["users"], response_model=Chapter)
+async def get_last_read(response: Response,
+                        current_user: schemas.User = Depends(get_current_active_user),
+                        db: Session = Depends(get_db),
+                        manga_id: int = None):
+    user_id = current_user.id
+    chapter = user_crud.get_last_read_chapter(db, manga_id, user_id)
+    return chapter
+

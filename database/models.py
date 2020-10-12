@@ -17,9 +17,11 @@ class History(Base):
     __tablename__ = 'history'
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     manga_id = Column(Integer, ForeignKey('mangas.id'), primary_key=True)
+    chaper_id = Column(Integer, ForeignKey('chapters.id'), nullable=True)
     last_added = Column(DateTime)
     manga = relationship("Manga", back_populates="users")
     user = relationship("User", back_populates="history_mangas")
+    chapter = relationship("Chapter")
 
 
 class User(Base):
