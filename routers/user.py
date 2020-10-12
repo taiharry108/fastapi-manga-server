@@ -1,4 +1,4 @@
-from core.chapter import Chapter
+from core.chapter import Chapter, ChapterIn
 from database.crud.crud_enum import CrudEnum
 from commons.utils import construct_simple_manga
 from fastapi import Response, status
@@ -87,16 +87,16 @@ async def del_history(response: Response,
     return {"success": success}
 
 
-@router.post("/update_history/{manga_id}/{chapter_id}", tags=["users"], status_code=202)
-async def update_history(response: Response, 
+@router.post("/update_history/{manga_id}", tags=["users"], status_code=202)
+async def update_history(response: Response,
+                         chapter: ChapterIn,
                          current_user: schemas.User = Depends(get_current_active_user),
                          db: Session = Depends(get_db),
                          manga_id: int = None,
-                         chapter_id: int = None):
-                        
-    user_id = current_user.id
+                         ):
+    user_id = current_user.id    
     success = user_crud.update_last_read_chapter(
-        db, manga_id, user_id, chapter_id=chapter_id)
+        db, manga_id, user_id, page_url=chapter.page_url)
 
     if success == CrudEnum.Failed:
         response.status_code = status.HTTP_406_NOT_ACCEPTABLE

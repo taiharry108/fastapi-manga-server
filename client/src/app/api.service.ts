@@ -118,6 +118,14 @@ export class ApiService {
     });
   }
 
+  updateLastRead(mangaId: number, pageUrl: string) {
+    const url = `${this.serverUrl}user/update_history/${mangaId}`;
+    this.http.post(url, {"page_url": pageUrl}).subscribe((result) => {
+      if (result)
+        console.log("update last read");      
+    }) 
+  }
+
   getHistory() {
     const url = `${this.serverUrl}user/history`;
     this.http.get<Manga[]>(url).subscribe((result) => {

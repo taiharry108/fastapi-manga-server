@@ -1,3 +1,5 @@
+from database.crud import chapter_crud
+from pydantic.networks import HttpUrl
 from database.models import Chapter
 from core import chapter
 from database.crud.crud_enum import CrudEnum
@@ -76,12 +78,13 @@ def manga_in_user_history(db: Session, manga_id: int, user_id: int) -> models.Hi
     return db.query(History).filter(History.manga_id == manga_id, History.user_id == user_id).first()
 
 
-def update_last_read_chapter(db: Session, manga_id: int, user_id: int, chapter_id: int) -> CrudEnum:
+def update_last_read_chapter(db: Session, manga_id: int, user_id: int, page_url: HttpUrl) -> CrudEnum:
     db_hist = manga_in_user_history(db, manga_id, user_id)
+    db_chap = chapter_crud.get_chapter_by_url(db, page_url)
     status = CrudEnum.Failed
 
-    if db_hist is not None:
-        db_hist.chaper_id = chapter_id
+    if db_hist is not None and db_chap is not None:        
+        db_hist.chapter = db_chap
         status = CrudEnum.Updated
         db.commit()
     return status
@@ -93,8 +96,6 @@ def get_last_read_chapter(db: Session, manga_id: int, user_id: int) -> Chapter:
 
 
 def add_history_manga(db: Session, manga_id: int, user_id: int) -> CrudEnum:
-    History = models.History
-
     db_manga = db.query(models.Manga).get(manga_id)
     db_user = db.query(models.User).get(user_id)
 
