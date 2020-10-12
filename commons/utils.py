@@ -1,4 +1,4 @@
-from core.manga import MangaSimple, Manga, MangaWithMeta
+from core.manga import MangaBase, MangaSimple, Manga, MangaWithMeta
 from database import models
 
 
@@ -40,3 +40,7 @@ def construct_simple_manga(manga: models.Manga, is_fav: bool) -> MangaSimple:
 
 def construct_manga(manga: models.Manga, is_fav: bool = None) -> Manga:
     return _construct_manga(manga, Manga, None)
+
+def construct_manga_base(manga: models.Manga) -> MangaBase:
+    return MangaBase(name=manga.name, url=manga.url,
+                     id=manga.id, site=manga.manga_site.name)

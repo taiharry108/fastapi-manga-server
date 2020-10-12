@@ -12,6 +12,12 @@ def get_manga_by_url(db: Session, url: str) -> models.Manga:
     return query_result.first()
 
 
+def get_manga_by_id(db: Session, manga_id) -> models.Manga:
+    db_mangas =  get_mangas_by_ids(db, [manga_id])
+    if db_mangas: return db_mangas[0]
+    return None
+
+
 def get_mangas_by_ids(db: Session, manga_ids: List[int]) -> List[models.Manga]:
     result = db.query(models.Manga).filter(
         models.Manga.id.in_(manga_ids)).all()
@@ -44,12 +50,13 @@ def create_mangas(db: Session, mangas: List[Manga], site: MangaSiteEnum) -> bool
     for manga in mangas:
         if not manga.url in url_set:
             db_manga = models.Manga(
-                name=manga.name, url=manga.url, manga_site_id=manga_site_id)
+                name=manga.name, url=manga.url, manga_site_id=manga_site_id)            
             db_mangas.append(db_manga)
 
-    db.bulk_save_objects(db_mangas)
+    db.bulk_save_objects(db_mangas)    
     db.commit()
-    return True
+    return db.query(models.Manga).filter(
+        models.Manga.url.in_(urls)).all()
 
 
 def create_manga(db: Session, manga_name: str, manga_url: HttpUrl, site: MangaSiteEnum) -> models.Manga:

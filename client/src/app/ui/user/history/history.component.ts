@@ -36,9 +36,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   onCardClicked(manga: Manga) {
     const site = convertPySite(manga.site);
     this.api.currentSite = site;
-    const splits = manga.url.split('/');
-    const mangaPage = splits[splits.length - 2];
-    this.api.getIndexPage(mangaPage);
+    this.api.getIndexPage(manga.id);
     this.router.navigate(['/manga-index']);
   }
 

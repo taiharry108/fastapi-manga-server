@@ -1,3 +1,7 @@
+from database.crud.chapter_crud import create_chapter, create_chapters
+from database.crud.crud_enum import CrudEnum
+from database.crud.manga_crud import get_manga_by_id, update_manga_meta
+from commons.utils import construct_manga, construct_manga_base
 from core.page import Page
 from core.manga_site import MangaSite
 from core.utils import get_manga_site_common
@@ -8,6 +12,7 @@ import os
 from typing import List
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
+from fastapi import Response, status
 
 from sqlalchemy.orm import Session
 
@@ -31,8 +36,9 @@ async def search_manga(site: MangaSiteEnum,
                        db: Session = Depends(get_db),
                        manga_site: MangaSite = Depends(get_manga_site_common)):
     mangas = await manga_site.search_manga(search_keyword)
-    manga_crud.create_mangas(db, mangas, site)
-    return mangas
+    db_mangas = manga_crud.create_mangas(db, mangas, site)
+    return [construct_manga_base(manga) for manga in db_mangas]
+
 
 
 def read_img_to_b64(file_path: str) -> str:
@@ -41,25 +47,25 @@ def read_img_to_b64(file_path: str) -> str:
         return base64.b64encode(b).decode("utf-8")
 
 
-@router.get('/index/{site}/{manga_page}', response_model=Manga)
-async def get_index(site: MangaSiteEnum,
-                    manga_page: str,
+@router.get('/index/{site}/{manga_id}', response_model=Manga)
+async def get_index(response: Response,
+                    manga_id: int,
                     db: Session = Depends(get_db),
                     manga_site: MangaSite = Depends(get_manga_site_common)):
-    url = get_idx_page(site, manga_page)
-    manga = catalog.get_manga(db, site, url)
+    db_manga = get_manga_by_id(db, manga_id)
 
-    need_update = manga.last_update is None or manga.last_update + \
-        timedelta(days=3) < datetime.now()
-
-    # need_update = True
-
-    if manga is None or not manga.idx_retrieved or need_update:
-        if need_update and manga.thum_img is not None and os.path.isfile(manga.thum_img):
-            os.remove(manga.thum_img)
-        manga = await manga_site.get_index_page(url)
-        chapter_crud.create_chapters(db, manga)
-        manga_crud.update_manga_meta(db, manga)
+    if db_manga is None:
+        response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+        return {"success": CrudEnum.Failed}
+    
+    thum_img = db_manga.thum_img
+    
+    if thum_img is not None and os.path.isfile(thum_img):
+        os.remove(thum_img)
+    
+    manga = await manga_site.get_index_page(db_manga.url)
+    create_chapters(db, manga)
+    update_manga_meta(db, manga)
 
     if manga.thum_img is not None:
         manga.thum_img = read_img_to_b64(manga.thum_img)
@@ -70,8 +76,10 @@ async def get_index(site: MangaSiteEnum,
     return manga
 
 
-@router.get('/chapter/{site}/{manga_page}')
-async def get_chapter(site: MangaSiteEnum, manga_page: str,
+@router.get('/chapter/{site}/{manga_id}')
+async def get_chapter(response: Response, 
+                      site: MangaSiteEnum,
+                      manga_id: int,
                       page_url: HttpUrl,
                       manga_site: MangaSite = Depends(get_manga_site_common),
                       db: Session = Depends(get_db)):
@@ -79,11 +87,11 @@ async def get_chapter(site: MangaSiteEnum, manga_page: str,
     if pages:
         pages = [Page.from_orm(page) for page in pages]
     else:
-        url = get_idx_page(site, manga_page)
+        db_manga = get_manga_by_id(db, manga_id)
 
-        manga = catalog.get_manga(db, site, url)
-        if manga is None or not manga.idx_retrieved:
-            manga = await manga_site.get_index_page(url)
+        if db_manga is None:
+            response.status_code = status.HTTP_406_NOT_ACCEPTABLE
+            return {"success": CrudEnum.Failed}        
 
         pages = []
 
@@ -92,8 +100,9 @@ async def get_chapter(site: MangaSiteEnum, manga_page: str,
             for page in pages:
                 yield f'data: {json.dumps(page.dict())}\n\n'
         else:
+            manga = construct_manga(db_manga)
             async for img_dict in manga_site.download_chapter(manga, page_url):
-                pages.append(Page(**img_dict))
+                pages.append(Page(**img_dict))                
                 yield f'data: {json.dumps(img_dict)}\n\n'                
             chapter_crud.add_pages_to_chapter(db, page_url, pages)
         yield 'data: {}\n\n'

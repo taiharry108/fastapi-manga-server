@@ -9,6 +9,7 @@ import { SseService, Message } from './sse.service';
 import { MangaSite } from './manga-site.enum';
 import { Auth } from './model/auth';
 import { Page } from './model/page';
+import { Chapter } from './model/chapter';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +24,7 @@ export class ApiService {
 
   searchResultSubject = new Subject<SearchResult[]>();
   mangaWIthIndexResultSubject = new Subject<Manga>();
+  lastReadChapter = new Subject<Chapter>();
 
   imagesSseEvent = new Subject<Page>();
   pages = new Subject<Page[]>();
@@ -99,20 +101,16 @@ export class ApiService {
     });
   }
 
-  getIndexPage(mangaPage: string) {
-    const url = `${this.serverUrl}index/${this.site}/${mangaPage}`;
+  getIndexPage(mangaId: number) {
+    const url = `${this.serverUrl}index/${this.site}/${mangaId}`;
     this.http.get<Manga>(url).subscribe((result) => {
       this.mangaWIthIndexResultSubject.next(result);
+      console.log(result);
     });
   }
 
-  getImages(mangaUrl: string, pageUrl: string) {
-    const splits = mangaUrl.split('/');
-    const mangaPage = splits[splits.length - 2];
-    const url = `${this.serverUrl}chapter/${this.site}/${mangaPage}?page_url=${pageUrl}`;
-    // this.http.get<Page[]>(url).subscribe((result) => {      
-    //   this.pages.next(result);
-    // });
+  getImages(mangaId: number, pageUrl: string) {
+    const url = `${this.serverUrl}chapter/${this.site}/${mangaId}?page_url=${pageUrl}`;
     this.sseService.getServerSentEvent(url).subscribe((page) => {
       this.imagesSseEvent.next(page);
     });
@@ -120,10 +118,16 @@ export class ApiService {
 
   updateLastRead(mangaId: number, pageUrl: string) {
     const url = `${this.serverUrl}user/update_history/${mangaId}`;
-    this.http.post(url, {"page_url": pageUrl}).subscribe((result) => {
-      if (result)
-        console.log("update last read");      
-    }) 
+    this.http.post(url, { page_url: pageUrl }).subscribe((result) => {
+      if (result) this.getLastRead(mangaId);
+    });
+  }
+
+  getLastRead(mangaId: number) {
+    const url = `${this.serverUrl}user/get_last_read/${mangaId}`;
+    this.http.get<Chapter>(url).subscribe((chap) => {
+      this.lastReadChapter.next(chap);
+    });
   }
 
   getHistory() {
@@ -135,7 +139,7 @@ export class ApiService {
 
   addHistory(mangaId: number) {
     const url = `${this.serverUrl}user/add_history/${mangaId}`;
-    this.http.post(url, {}).subscribe((result) => {      
+    this.http.post(url, {}).subscribe((result) => {
       this.getHistory();
     });
   }
@@ -150,7 +154,7 @@ export class ApiService {
 
   addFav(mangaId: number, getHistory: boolean = false) {
     const url = `${this.serverUrl}user/add_fav/${mangaId}`;
-    this.http.post(url, {}).subscribe((result) => {      
+    this.http.post(url, {}).subscribe((result) => {
       this.getFavs();
       if (getHistory) this.getHistory();
     });

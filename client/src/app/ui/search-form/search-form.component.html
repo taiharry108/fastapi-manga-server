@@ -23,7 +23,7 @@
             <ul class="list-group">
               <li
                 *ngFor="let result of searchResult | async | slice: 0:10"
-                (click)="suggestionOnClick(result.url)"
+                (click)="suggestionOnClick(result.id)"
                 class="list-group-item"
               >
                 {{ result.name }}

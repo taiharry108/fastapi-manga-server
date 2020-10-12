@@ -1,7 +1,9 @@
+from typing import Optional
 from pydantic import BaseModel, HttpUrl
 
 
 class ChapterIn(BaseModel):
+    id: Optional[int]
     page_url: HttpUrl
 
 

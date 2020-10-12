@@ -8,15 +8,10 @@ import {
 import { ApiService } from 'src/app/api.service';
 import { SearchResult } from 'src/app/model/search-result';
 import { Observable, Subject } from 'rxjs';
-import {
-  takeUntil,
-  debounceTime,
-  distinctUntilChanged,
-} from 'rxjs/operators';
+import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 declare var $: any;
-
 
 @Component({
   selector: 'app-search-form',
@@ -51,24 +46,15 @@ export class SearchFormComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(150), distinctUntilChanged())
       .subscribe((value) => {
         const { search, site } = value;
-        console.log(site)
-        this.api.currentSite = site;        
+        console.log(site);
+        this.api.currentSite = site;
         if (search.length > 3) this.api.searchManga(search);
         if (search.length === 0) this.api.emptySearch();
       });
   }
 
-  genMangaPage(url: string) {
-    switch(this.api.currentSite) {
-
-    }
-  }
-
-  suggestionOnClick(url: string) {
-    const splits = url.split('/');
-    const mangaPage = splits[splits.length-2];
-    console.log(url);
-    this.api.getIndexPage(mangaPage);
+  suggestionOnClick(mangaId: number) {
+    this.api.getIndexPage(mangaId);
     this.router.navigate(['/manga-index']);
   }
 
@@ -97,5 +83,4 @@ export class SearchFormComponent implements OnInit, OnDestroy {
   get siteNames(): string[] {
     return this.api.allSiteNames;
   }
-
 }

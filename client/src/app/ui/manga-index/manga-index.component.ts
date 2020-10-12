@@ -4,6 +4,7 @@ import { Observable, Subject } from 'rxjs';
 import { Manga } from 'src/app/model/manga';
 import { MangaIndexType } from 'src/app/model/manga-index-type.enum';
 import { takeUntil } from 'rxjs/operators';
+import { Chapter } from 'src/app/model/chapter';
 
 declare var $: any;
 
@@ -17,9 +18,11 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
   ngUnsubscribe = new Subject<void>();
   activatedTab: number;
   MangaIndexType = MangaIndexType;
+  lastReadChapter$: Observable<Chapter>;
 
   constructor(private api: ApiService) {
     this.manga$ = this.api.mangaWIthIndexResultSubject;
+    this.lastReadChapter$ = this.api.lastReadChapter;
   }
 
   ngOnInit(): void {
@@ -27,7 +30,8 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.api.getFavs();
     this.manga$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((manga) => {
       this.api.addHistory(manga.id);
-    });
+      this.api.getLastRead(manga.id);
+    });    
   }
 
   ngOnDestroy(): void {
@@ -35,9 +39,9 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  onLinkClicked(mangaPage: string, pageUrl: string, mangaId: number) {
+  onLinkClicked(pageUrl: string, mangaId: number) {
     $('#exampleModalCenter').modal('show');
-    this.api.getImages(mangaPage, pageUrl);
+    this.api.getImages(mangaId, pageUrl);
     this.api.updateLastRead(mangaId, pageUrl);
   }
 
