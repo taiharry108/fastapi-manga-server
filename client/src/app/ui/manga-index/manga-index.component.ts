@@ -15,8 +15,10 @@ declare var $: any;
 })
 export class MangaIndexComponent implements OnInit, OnDestroy {
   manga$: Observable<Manga>;
+  manga: Manga;
   ngUnsubscribe = new Subject<void>();
   activatedTab: number;
+  chapIdx: number;
   MangaIndexType = MangaIndexType;
   lastReadChapter$: Observable<Chapter>;
   mediaServerUrl: string;
@@ -28,10 +30,12 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.activatedTab = 0;
+    this.chapIdx = null;
     this.api.getFavs();
     this.manga$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((manga) => {
       this.api.addHistory(manga.id);
       this.api.getLastRead(manga.id);
+      this.manga = manga;
     });
     this.mediaServerUrl = this.api.mediaServerUrl;
   }
@@ -41,10 +45,12 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  onLinkClicked(pageUrl: string, mangaId: number) {
+  onLinkClicked(pageUrl: string, mangaId: number, chapIdx: number) {
     $('#exampleModalCenter').modal('show');
     this.api.getImages(mangaId, pageUrl);
     this.api.updateLastRead(mangaId, pageUrl);
+    this.chapIdx = chapIdx;
+    console.log(this.chapIdx);
   }
 
   onTabLinkClicked(idx: number) {
