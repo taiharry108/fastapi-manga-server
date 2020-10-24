@@ -15,7 +15,7 @@ models.Base.metadata.create_all(bind=engine)
 
 fastAPI_logger = logger  # convenient name
 
-origins = ["http://localhost:4200"]
+origins = ["http://localhost:4200", "http://localhost:8001"]
 
 
 async def on_start_up():
@@ -28,7 +28,7 @@ async def on_shutdown():
     await SingletonAiohttp.close_aiohttp_client()
 
 app = FastAPI(on_startup=[on_start_up], on_shutdown=[on_shutdown])
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,12 +38,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-templates = Jinja2Templates(directory="templates")
+# templates = Jinja2Templates(directory="templates")
 
 
-@app.get("/", response_class=HTMLResponse)
-async def index(request: Request):    
-    return templates.TemplateResponse("index.html", {"request": request})
+# @app.get("/", response_class=HTMLResponse)
+# async def index(request: Request):    
+#     return templates.TemplateResponse("index.html", {"request": request})
 
 app.include_router(
     main.router,

@@ -1,4 +1,4 @@
-from database.crud.chapter_crud import create_chapter, create_chapters
+from database.crud.chapter_crud import create_chapters
 from database.crud.crud_enum import CrudEnum
 from database.crud.manga_crud import get_manga_by_id, update_manga_meta
 from commons.utils import construct_manga, construct_manga_base
@@ -7,7 +7,6 @@ from core.manga_site import MangaSite
 from core.utils import get_manga_site_common
 from pydantic.networks import HttpUrl
 from database.crud import utils
-from datetime import datetime, timedelta
 import os
 from typing import List
 from fastapi import APIRouter, Depends
@@ -17,7 +16,6 @@ from fastapi import Response, status
 from sqlalchemy.orm import Session
 
 from core.manga_catalog import MangaCatalog
-from core.manga_site_factory import get_idx_page
 from core.manga_site_enum import MangaSiteEnum
 from core.manga import Manga, MangaBase
 from database.crud import manga_crud, chapter_crud, manga_site_crud
@@ -67,8 +65,8 @@ async def get_index(response: Response,
     create_chapters(db, manga)
     update_manga_meta(db, manga)
 
-    if manga.thum_img is not None:
-        manga.thum_img = read_img_to_b64(manga.thum_img)
+    # if manga.thum_img is not None:
+    #     manga.thum_img = read_img_to_b64(manga.thum_img)
 
     for m_type, chapters in manga.chapters.items():
         chapters.reverse()
@@ -127,5 +125,14 @@ async def delete_all_pages(db: Session = Depends(get_db)):
 
 @router.get('/test')
 async def test(db: Session = Depends(get_db)):
-    db_user = db.query(models.User).first()
+    # db_pages = db.query(models.Page).all()
+    db_mangas = db.query(models.Manga).all()
+    for manga in db_mangas:        
+        thum_img = manga.thum_img
+        if thum_img is not None:
+            manga.thum_img = thum_img.replace('static/', '')
+
+    db.commit()
+    
+
     return True

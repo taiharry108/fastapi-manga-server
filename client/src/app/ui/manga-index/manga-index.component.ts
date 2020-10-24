@@ -19,6 +19,7 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
   activatedTab: number;
   MangaIndexType = MangaIndexType;
   lastReadChapter$: Observable<Chapter>;
+  mediaServerUrl: string;
 
   constructor(private api: ApiService) {
     this.manga$ = this.api.mangaWIthIndexResultSubject;
@@ -31,7 +32,8 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.manga$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((manga) => {
       this.api.addHistory(manga.id);
       this.api.getLastRead(manga.id);
-    });    
+    });
+    this.mediaServerUrl = this.api.mediaServerUrl;
   }
 
   ngOnDestroy(): void {
