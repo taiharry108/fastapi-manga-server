@@ -57,10 +57,11 @@ def get_chapter_by_url(db: Session, url: HttpUrl) -> models.Chapter:
 
 def add_pages_to_chapter(db: Session, url: HttpUrl, pages: List[Page]):
     db_chap = get_chapter_by_url(db, url)
-    chapter_id = db_chap.id
-    db_pages = []
+    chapter_id = db_chap.id    
     db_pages = [models.Page(**page.dict(), chapter_id=chapter_id)
                 for page in pages]
+    
+    
     db.bulk_save_objects(db_pages)
     db.commit()
     return True
