@@ -45,12 +45,21 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  onLinkClicked(pageUrl: string, mangaId: number, chapIdx: number) {
-    $('#exampleModalCenter').modal('show');
+  private getImages(chapIdx: number) {
+    const mangaId = this.manga.id;
+    const chapters: Chapter[] = this.manga.chapters[
+      MangaIndexType[this.activatedTab]
+    ];
+    const chapter = chapters[chapIdx];
+    const pageUrl = chapter.page_url;
     this.api.getImages(mangaId, pageUrl);
     this.api.updateLastRead(mangaId, pageUrl);
     this.chapIdx = chapIdx;
-    console.log(this.chapIdx);
+  }
+
+  onLinkClicked(chapIdx: number) {
+    $('#exampleModalCenter').modal('show');
+    this.getImages(chapIdx);
   }
 
   onTabLinkClicked(idx: number) {
@@ -73,5 +82,21 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
   onFavIconClicked(mangaId: number): void {
     if (this.isFav(mangaId)) this.api.delFav(mangaId);
     else this.api.addFav(mangaId);
+  }
+
+  onLeftDown() {
+    const chapters: Chapter[] = this.manga.chapters[
+      MangaIndexType[this.activatedTab]
+    ];
+    if (this.chapIdx < chapters.length - 1) this.getImages(this.chapIdx + 1);    
+    console.log('pressed left');
+  }
+
+  onRightDown() {
+    const chapters: Chapter[] = this.manga.chapters[
+      MangaIndexType[this.activatedTab]
+    ];
+    if (this.chapIdx > 0) this.getImages(this.chapIdx - 1);    
+    console.log('pressed right');
   }
 }
