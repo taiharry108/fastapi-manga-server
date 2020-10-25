@@ -1,4 +1,4 @@
-<div *ngIf="manga$ | async as manga" class="manga-index-container">
+<div *ngIf="manga" class="manga-index-container">
   <div class="jumbotron bg-primary rounded-0 w-100 mx-auto my-0">
     <div class="w-75 m-auto d-flex">
       <div class="thum-img-container">
@@ -32,14 +32,14 @@
           let chapter of manga.chapters[MangaIndexType[activatedTab]];
           let idx = index
         " class="chapter-link-container col-sm-3 col-lg-2 m-2">
-        <a class="chapter-link nav-link text-center" (click)="onLinkClicked(chapter.page_url, manga.id)">{{ chapter.title }}</a>
+        <a class="chapter-link nav-link text-center" (click)="onLinkClicked(idx)">{{ chapter.title }}</a>
       </div>
     </div>
   </div>
 </div>
 
 <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
-  aria-hidden="true">
+  aria-hidden="true" (keydown.arrowleft)="onLeftDown()" (keydown.arrowright)="onRightDown()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-body">

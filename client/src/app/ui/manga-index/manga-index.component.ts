@@ -15,8 +15,10 @@ declare var $: any;
 })
 export class MangaIndexComponent implements OnInit, OnDestroy {
   manga$: Observable<Manga>;
+  manga: Manga;
   ngUnsubscribe = new Subject<void>();
   activatedTab: number;
+  chapIdx: number;
   MangaIndexType = MangaIndexType;
   lastReadChapter$: Observable<Chapter>;
   mediaServerUrl: string;
@@ -28,10 +30,12 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.activatedTab = 0;
+    this.chapIdx = null;
     this.api.getFavs();
     this.manga$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((manga) => {
       this.api.addHistory(manga.id);
       this.api.getLastRead(manga.id);
+      this.manga = manga;
     });
     this.mediaServerUrl = this.api.mediaServerUrl;
   }
@@ -41,10 +45,21 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  onLinkClicked(pageUrl: string, mangaId: number) {
-    $('#exampleModalCenter').modal('show');
+  private getImages(chapIdx: number) {
+    const mangaId = this.manga.id;
+    const chapters: Chapter[] = this.manga.chapters[
+      MangaIndexType[this.activatedTab]
+    ];
+    const chapter = chapters[chapIdx];
+    const pageUrl = chapter.page_url;
     this.api.getImages(mangaId, pageUrl);
     this.api.updateLastRead(mangaId, pageUrl);
+    this.chapIdx = chapIdx;
+  }
+
+  onLinkClicked(chapIdx: number) {
+    $('#exampleModalCenter').modal('show');
+    this.getImages(chapIdx);
   }
 
   onTabLinkClicked(idx: number) {
@@ -67,5 +82,21 @@ export class MangaIndexComponent implements OnInit, OnDestroy {
   onFavIconClicked(mangaId: number): void {
     if (this.isFav(mangaId)) this.api.delFav(mangaId);
     else this.api.addFav(mangaId);
+  }
+
+  onLeftDown() {
+    const chapters: Chapter[] = this.manga.chapters[
+      MangaIndexType[this.activatedTab]
+    ];
+    if (this.chapIdx < chapters.length - 1) this.getImages(this.chapIdx + 1);    
+    console.log('pressed left');
+  }
+
+  onRightDown() {
+    const chapters: Chapter[] = this.manga.chapters[
+      MangaIndexType[this.activatedTab]
+    ];
+    if (this.chapIdx > 0) this.getImages(this.chapIdx - 1);    
+    console.log('pressed right');
   }
 }

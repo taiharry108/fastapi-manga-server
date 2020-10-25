@@ -65,9 +65,6 @@ async def get_index(response: Response,
     create_chapters(db, manga)
     update_manga_meta(db, manga)
 
-    # if manga.thum_img is not None:
-    #     manga.thum_img = read_img_to_b64(manga.thum_img)
-
     for m_type, chapters in manga.chapters.items():
         chapters.reverse()
 
@@ -100,7 +97,9 @@ async def get_chapter(response: Response,
         else:
             manga = construct_manga(db_manga)
             async for img_dict in manga_site.download_chapter(manga, page_url):
-                pages.append(Page(**img_dict))                
+                img_dict['pic_path'] = img_dict['pic_path'].replace('static/', '')
+                page = Page(**img_dict)                    
+                pages.append(page)
                 yield f'data: {json.dumps(img_dict)}\n\n'                
             chapter_crud.add_pages_to_chapter(db, page_url, pages)
         yield 'data: {}\n\n'
@@ -125,12 +124,14 @@ async def delete_all_pages(db: Session = Depends(get_db)):
 
 @router.get('/test')
 async def test(db: Session = Depends(get_db)):
-    # db_pages = db.query(models.Page).all()
-    db_mangas = db.query(models.Manga).all()
-    for manga in db_mangas:        
-        thum_img = manga.thum_img
-        if thum_img is not None:
-            manga.thum_img = thum_img.replace('static/', '')
+    db_pages = db.query(models.Page).all()
+    for db_page in db_pages:
+        db_page.pic_path = db_page.pic_path.replace('static/', '')
+    # db_mangas = db.query(models.Manga).all()
+    # for manga in db_mangas:        
+    #     thum_img = manga.thum_img
+    #     if thum_img is not None:
+    #         manga.thum_img = thum_img.replace('static/', '')
 
     db.commit()
     
