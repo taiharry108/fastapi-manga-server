@@ -1,66 +1,62 @@
-import aiounittest
+from core.manga_site import MangaSite
+import pytest
 from core.manhuagui import ManHuaGui
 from core.manga import MangaIndexTypeEnum
-from core.downloader import Downloader
-from core.utils import enter_session
-import json
 
-class TestManHuaGui(aiounittest.AsyncTestCase):
-    def setUp(self):
-        self.site = ManHuaGui()
-        self.downloader = self.site.downloader
-        self.downloader.download_dir = Path("./static/test_images")
 
-    @enter_session
-    async def test_search_manga1(self, session):
-        self.downloader.session = session
-        manga_list = await self.site.search_manga("火影")
+@pytest.fixture(scope='class')
+def site(downloader) -> MangaSite:
+    site = ManHuaGui()
+    site.downloader = downloader
+    return site
+
+
+class TestManHuaGui:
+    @pytest.mark.asyncio
+    async def test_search_manga1(self, site: ManHuaGui):
+        manga_list = await site.search_manga("火影")
         for manga in manga_list:
             if manga.name == "火影忍者":
-                self.assertTrue(manga.url.endswith("comic/4681/"))
+                assert manga.url.endswith("comic/4681/")
 
-    @enter_session
-    async def test_search_manga2(self, session):
-        self.downloader.session = session
-        manga_list = await self.site.search_manga("stone")
+    @pytest.mark.asyncio
+    async def test_search_manga2(self, site: ManHuaGui):
+        manga_list = await site.search_manga("stone")
         for manga in manga_list:
             if manga.name == "Dr.STONE":
-                self.assertTrue(manga.url.endswith("comic/23270/"))
+                assert manga.url.endswith("comic/23270/")
 
-    @enter_session
-    async def test_get_index_page(self, session):
-        self.downloader.session = session
-        manga = await self.site.get_index_page("https://www.manhuagui.com/comic/23270/")
-        self.assertEqual(manga.name, "Dr.STONE")
-        self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.VOLUME]), 9)
-        self.assertTrue(len(manga.chapters[MangaIndexTypeEnum.CHAPTER]) >= 164)
-        self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.MISC]), 2)
+    @pytest.mark.asyncio
+    async def test_get_index_page(self, site: ManHuaGui):
+        manga = await site.get_index_page("https://www.manhuagui.com/comic/23270/")
+
+        assert manga.name == "Dr.STONE"
+        assert len(manga.chapters[MangaIndexTypeEnum.CHAPTER]) >= 164
+        assert len(manga.chapters[MangaIndexTypeEnum.MISC]) >= 2
+        assert len(manga.chapters[MangaIndexTypeEnum.VOLUME]) >= 9
 
         chap = manga.get_chapter(
             MangaIndexTypeEnum.CHAPTER, 0)
-        self.assertTrue(chap.page_url.endswith("comic/23270/290296.html"))
-        self.assertEqual(chap.title, '第01回')
+        assert chap.page_url.endswith("comic/23270/290296.html")
+        assert chap.title == '第01回'
 
         chap2 = manga.get_chapter(
             MangaIndexTypeEnum.CHAPTER, 163)
-        self.assertTrue(chap2.page_url.endswith("comic/23270/511656.html"))
-        self.assertEqual(chap2.title, '第160话 试看版')
+        assert chap2.page_url.endswith("comic/23270/511656.html")
+        assert chap2.title == '第160话 试看版'
 
+    @pytest.mark.asyncio
+    async def test_get_page_urls(self, site: ManHuaGui):
+        manga = await site.get_index_page("https://www.manhuagui.com/comic/23270/")
+        img_urls = await site.get_page_urls(manga, "https://www.manhuagui.com/comic/23270/511656.html")
+        assert len(img_urls) == 19
 
-    @enter_session
-    async def test_get_page_urls(self, session):
-        self.downloader.session = session
-        manga = await self.site.get_index_page("https://www.manhuagui.com/comic/23270/")
-        img_urls = await self.site.get_page_urls(manga, "https://www.manhuagui.com/comic/23270/511656.html")
-        self.assertEqual(len(img_urls), 19)
-
-    @enter_session
-    async def test_download_chapter(self, session):
-        self.downloader.session = session
+    @pytest.mark.asyncio
+    async def test_download_chapter(self, site: ManHuaGui):
         count = 0
-        manga = await self.site.get_index_page("https://www.manhuagui.com/comic/23270/")
-        async for item in self.site.download_chapter(manga, "https://www.manhuagui.com/comic/23270/511656.html"):
-            self.assertTrue("idx" in item)
-            self.assertTrue("pic_path" in item)
+        manga = await site.get_index_page("https://www.manhuagui.com/comic/23270/")
+        async for item in site.download_chapter(manga, "https://www.manhuagui.com/comic/23270/511656.html"):
+            assert "idx" in item
+            assert "pic_path" in item
             count += 1
-        self.assertEqual(count, 19)        
+        assert count == 19
