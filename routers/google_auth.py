@@ -16,6 +16,7 @@ config = Config('.env')
 
 COOKIE_AUTHORIZATION_NAME = "Authorization"
 COOKIE_DOMAIN = "localhost"
+ACCESS_TOKEN_EXPIRE_MINUTES = config('ACCESS_TOKEN_EXPIRE_MINUTES', cast=int)
 # COOKIE_DOMAIN = ""
 # COOKIE_DOMAIN = "127.0.0.1"
 
@@ -42,7 +43,6 @@ async def login(request: Request = None, db: Session = Depends(get_db)):
         value=f"Bearer {token}",
         domain=COOKIE_DOMAIN,
         httponly=True,
-        max_age=1800,
-        expires=1800,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     )
     return response

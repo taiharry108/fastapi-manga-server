@@ -74,7 +74,7 @@ async def create_access_token(request: Request, db: Session) -> str:
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token_from_data(
         data={"sub": user.email}, expires_delta=access_token_expires
-    )
+    )    
 
     token = jsonable_encoder(access_token)
     return token

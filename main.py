@@ -1,9 +1,6 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.logger import logger
-from fastapi.templating import Jinja2Templates
 from routers import main, google_auth, user
 from core.singleton_aiohttp import SingletonAiohttp
 from database import models
@@ -20,7 +17,6 @@ origins = ["http://localhost:4200", "http://localhost:8001"]
 
 async def on_start_up():
     fastAPI_logger.info("on_start_up")
-    # d = Downloader(SingletonAiohttp.get_session())
 
 
 async def on_shutdown():
@@ -28,7 +24,6 @@ async def on_shutdown():
     await SingletonAiohttp.close_aiohttp_client()
 
 app = FastAPI(on_startup=[on_start_up], on_shutdown=[on_shutdown])
-# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,12 +33,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# templates = Jinja2Templates(directory="templates")
-
-
-# @app.get("/", response_class=HTMLResponse)
-# async def index(request: Request):    
-#     return templates.TemplateResponse("index.html", {"request": request})
 
 app.include_router(
     main.router,
