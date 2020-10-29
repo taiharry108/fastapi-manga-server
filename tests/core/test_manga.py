@@ -1,59 +1,71 @@
-import unittest
-from core.manga import Manga, MangaIndexTypeEnum
+# import unittest
+from datetime import datetime
+from typing import Dict
+from core.manga_site_enum import MangaSiteEnum
+from core.manga import Manga, MangaBase, MangaIndexTypeEnum, MangaWithMeta
 from core.chapter import Chapter
+import pytest
 
 
-def get_sample_manga():
-    manga_name = "Test Name"
-    manga_url = "https://www.test.com"
-    return Manga(name=manga_name, url=manga_url, id=1)
+@pytest.fixture
+def manga_base() -> MangaBase:
+    name = 'Test Name'
+    url = 'https://www.test.com'
+    site = MangaSiteEnum.ManHuaRen
+    return MangaBase(name=name, url=url, site=site)
 
 
-class TestManga(unittest.TestCase):
+@pytest.fixture
+def manga_with_meta(manga_base) -> MangaWithMeta:
+    return MangaWithMeta(**manga_base.dict())
 
-    def setUp(self):
-        self.manga = get_sample_manga()
-        self.chapter_title = 'Test Title'
-        self.chapter_page_url = "https://www.testchapter.com"
 
-    def test_create_manga(self):
-        """Test create manga"""
-        manga = get_sample_manga()
-        self.assertEqual(manga.name, "Test Name")
-        self.assertEqual(manga.url, "https://www.test.com")
-        self.assertIsInstance(manga.chapters, dict)
-        self.assertEqual(len(manga.chapters), 3)
-        for chapter_list in manga.chapters.values():
-            self.assertIsInstance(chapter_list, list)
-            self.assertEqual(len(chapter_list), 0)
-        self.assertIsNone(manga.last_update)
-        self.assertIsNone(manga.finished)
-        self.assertIsNone(manga.thum_img)
+@pytest.fixture
+def manga(manga_with_meta) -> Manga:
+    return Manga(**manga_with_meta.dict())
 
-    def test_add_chapter(self):
-        """Test add chapter method"""
-        manga = self.manga
-        self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.CHAPTER]), 0)
-        manga.add_chapter(MangaIndexTypeEnum.CHAPTER,
-                          self.chapter_title, self.chapter_page_url)
-        self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.CHAPTER]), 1)
 
-    def test_get_chapter(self):
-        """Test get chapter"""
-        manga = self.manga
-        manga.add_chapter(MangaIndexTypeEnum.CHAPTER,
-                          self.chapter_title, self.chapter_page_url)
-        chapter = manga.get_chapter(MangaIndexTypeEnum.CHAPTER, 0)
-        self.assertEqual(chapter.title, self.chapter_title)
-        self.assertEqual(chapter.page_url, self.chapter_page_url)
+@pytest.fixture
+def chapter() -> Chapter:
+    title = 'Test Title'
+    page_url = 'https://www.testchap.com'
+    return Chapter(title=title, page_url=page_url)
 
-    def test_add_same_chapter_twice(self):
-        """Test add same chapter twice"""
-        manga = self.manga
-        manga.add_chapter(MangaIndexTypeEnum.CHAPTER,
-                          self.chapter_title, self.chapter_page_url)
 
-        manga.add_chapter(MangaIndexTypeEnum.CHAPTER,
-                          self.chapter_title, self.chapter_page_url)
-                          
-        self.assertEqual(len(manga.chapters[MangaIndexTypeEnum.CHAPTER]), 1)
+class TestMangaWithMeta:
+    def test_retreived_idx_page(self, manga_with_meta: MangaWithMeta):
+        manga_with_meta.retreived_idx_page()
+        assert manga_with_meta.idx_retrieved
+
+    def test_set_meta_data(self, manga_with_meta: MangaWithMeta):
+        thum_img = 'images/test.jpg'
+        manga_with_meta.set_meta_data({
+            'finished': True,
+            'thum_img': thum_img
+        })
+
+        assert manga_with_meta.thum_img == thum_img
+        assert manga_with_meta.finished
+        assert manga_with_meta.last_update <= datetime.now()
+
+
+class TestManga:
+    def test_manga(self, manga: Manga):
+        assert hasattr(manga, 'chapters')
+        assert isinstance(manga.chapters, dict)
+        assert len(manga.chapters) == len(MangaIndexTypeEnum)
+        assert isinstance(manga.chapters[MangaIndexTypeEnum.CHAPTER], list)
+
+    def test_add_chapter(self, manga: Manga, chapter: Chapter):
+        m_type = MangaIndexTypeEnum.CHAPTER
+        manga.add_chapter(m_type, title=chapter.title, page_url=chapter.page_url)
+
+        assert len(manga.chapters[m_type]) == 1
+        assert manga.chapters[m_type][0].title == chapter.title
+        assert manga.chapters[m_type][0].page_url == chapter.page_url
+
+    def test_get_chapter(self, manga: Manga, chapter: Chapter):
+        m_type = MangaIndexTypeEnum.CHAPTER
+        manga.add_chapter(m_type, title=chapter.title,
+                          page_url=chapter.page_url)
+        assert manga.get_chapter(m_type, 0) == chapter

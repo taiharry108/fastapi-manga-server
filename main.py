@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.logger import logger
 from routers import main, google_auth, user
-from core.singleton_aiohttp import SingletonAiohttp
 from database import models
 from database.database import engine
 
@@ -20,8 +19,7 @@ async def on_start_up():
 
 
 async def on_shutdown():
-    fastAPI_logger.info("on_shutdown")
-    await SingletonAiohttp.close_aiohttp_client()
+    fastAPI_logger.info("on_shutdown")    
 
 app = FastAPI(on_startup=[on_start_up], on_shutdown=[on_shutdown])
 

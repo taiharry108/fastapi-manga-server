@@ -1,88 +1,71 @@
-import base64
-from functools import wraps
-from aiohttp.client_reqrep import ClientResponse
-from bs4 import BeautifulSoup
 import asyncio
-from typing import Any, AsyncIterable, Callable, Dict, List, Union
+import base64
 from pathlib import Path
+from typing import Any, AsyncIterable, Callable, Dict, List, Union
 import uuid
-from core.singleton_aiohttp import SingletonAiohttp
+from bs4 import BeautifulSoup
+from pydantic import HttpUrl
+from .singleton_httpx import SingletonHttpx
+from functools import wraps
+from httpx import Response
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
     'Accept-Language': 'en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7,ja;q=0.6,zh-CN;q=0.5'
 }
 
-
 def get_resp(func: Callable) -> Callable:
     @wraps(func)
-    async def wrapped(self: "_Downloader", url: str, additional_headers: Dict[str, str] = {}, **kwargs):
+    async def wrapped(self: "Downloader", url: HttpUrl, additional_headers: Dict[str, str] = {}, **kwargs):
         headers = {}
         headers.update(additional_headers)
         headers.update(HEADERS)
-        async with self.session.get(url, headers=headers) as resp:
-            if resp.status == 200:
-                return await func(self, resp, **kwargs)
-            else:
-                raise RuntimeError(f"response status code: {resp.status}")
+
+        resp = await self.client.get(url, headers=headers)
+        
+        if resp.status_code == 200:            
+            return await func(self, resp, **kwargs)
+        else:
+            raise RuntimeError(f"response status code: {resp.status_code}")
     return wrapped
 
-
 class Downloader(object):
-
     def __init__(self):
-        self.session = SingletonAiohttp.get_session()
         self.num_workers = 2
         self.download_dir = Path('./static/images')
-
+        self.client = SingletonHttpx.get_client()
+    
     @get_resp
-    async def get(self, resp: ClientResponse) -> str:
+    async def get_soup(self, resp: Response) -> BeautifulSoup:
         """Make a get request and return with BeautifulSoup"""
-        return await resp.text()
-
+        return BeautifulSoup(resp.text, features='html.parser')
+    
     @get_resp
-    async def get_bytes(self, resp: ClientResponse) -> BeautifulSoup:
-        """Make a get request and return with bytes"""
-        return await resp.content.read()
-
-    @get_resp
-    async def get_byte_soup(self, resp: ClientResponse) -> BeautifulSoup:
+    async def get_byte_soup(self, resp: Response) -> BeautifulSoup:
         """Make a get request and return with BeautifulSoup"""
-        return BeautifulSoup(await resp.content.read(), features="html.parser")
-
+        return BeautifulSoup(resp.content, features="html.parser")
+    
     @get_resp
-    async def get_soup(self, resp: ClientResponse) -> BeautifulSoup:
-        """Make a get request and return with BeautifulSoup"""
-        return BeautifulSoup(await resp.text(), features="html.parser")
+    async def get_img(self, resp: Response, download: bool = False, download_path: Path = None) -> Union[bytes, str]:
+        b = resp.content
+        if not download: return b
+        
+        content_type = resp.headers['content-type']
+        if content_type.startswith('image'):
+            dir_path = self.download_dir
+            if download_path is not None:
+                dir_path /= download_path
 
-    @get_resp
-    async def get_json(self, resp: ClientResponse) -> Any:
-        """Make a get request and return with BeautifulSoup"""
-        return await resp.json()
-
-    @get_resp
-    async def get_img(self, resp: ClientResponse, download: bool = False, download_path: Path = None) -> Union[bytes, str]:
-        b = await resp.content.read()
-        if download:
-            content_type = resp.content_type
-            if content_type.startswith('image'):
-                dir_path = self.download_dir
-                if download_path is not None:
-                    dir_path /= download_path
-
-                dir_path.mkdir(exist_ok=True, parents=True)
-                file_path = dir_path / \
-                    f'{uuid.uuid4()}.{content_type.split("/")[-1]}'
-                with open(file_path, 'wb') as img_f:
-                    img_f.write(b)
-                return str(file_path)
-
-            else:
-                return b
+            dir_path.mkdir(exist_ok=True, parents=True)
+            file_path = dir_path / \
+                f'{uuid.uuid4()}.{content_type.split("/")[-1]}'
+            with open(file_path, 'wb') as img_f:
+                img_f.write(b)
+            return str(file_path)
         else:
-            return b
-
-    async def _producer(self, in_q: asyncio.Queue, out_q: asyncio.Queue, referer: str, download_path: Path = None):
+            raise RuntimeError("Response is not an image")
+    
+    async def _producer(self, in_q: asyncio.Queue, out_q: asyncio.Queue, referer: HttpUrl, download_path: Path = None):
         while True:
             item = await in_q.get()
 
@@ -108,8 +91,8 @@ class Downloader(object):
                 yield item
             if count == self.num_workers:
                 break
-
-    async def get_images(self, urls: List[str], referer: str, download_path=None) -> AsyncIterable[Dict[str, Any]]:
+    
+    async def get_images(self, urls: List[str], referer: str, download_path: Path) -> AsyncIterable[Dict[str, Any]]:
         """Request images and return async iterable dictionary with image bytes and index"""
 
         prod_queue = asyncio.Queue()
@@ -128,3 +111,4 @@ class Downloader(object):
                 yield {"idx": idx, "message": encoded_str, "total": total}
             else:
                 yield {"idx": idx, "pic_path": img_bytes, "total": total}
+        
