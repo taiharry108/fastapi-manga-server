@@ -6,8 +6,6 @@ from database.crud import manga_crud
 from database.utils import get_db
 from .utils import override_get_db, override_get_manga_site_common
 from main import app
-import unittest
-from fastapi.testclient import TestClient
 from starlette.config import Config
 import json
 

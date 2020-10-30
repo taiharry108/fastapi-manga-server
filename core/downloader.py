@@ -36,6 +36,11 @@ class Downloader(object):
         self.client = SingletonHttpx.get_client()
     
     @get_resp
+    async def get_json(self, resp: Response) -> Union[List, Dict]:
+        """Make a get request and return with BeautifulSoup"""
+        return resp.json()
+    
+    @get_resp
     async def get_soup(self, resp: Response) -> BeautifulSoup:
         """Make a get request and return with BeautifulSoup"""
         return BeautifulSoup(resp.text, features='html.parser')
