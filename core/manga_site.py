@@ -46,8 +46,7 @@ class MangaSite(object):
     async def download_chapter(self, manga: Manga, page_url: HttpUrl) -> AsyncIterable[Dict]:
         img_urls = await self.get_page_urls(manga, page_url)
         referer = page_url if self.has_referer else None
-        download_path = Path(self._name) / manga.name
-
+        download_path = Path(self._name) / manga.name        
         async for img_dict in self.downloader.get_images(img_urls, referer=referer, download_path=download_path):
             yield img_dict
 

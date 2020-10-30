@@ -1,5 +1,3 @@
-from enum import Enum
-from database.crud import user_crud
 from database import models
 from sqlalchemy.orm import Session
 

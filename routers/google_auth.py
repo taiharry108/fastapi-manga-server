@@ -34,8 +34,7 @@ async def logout():
 
 
 @router.post("/login", response_model=schemas.Token, tags=["security"])
-async def login(request: Request = None, db: Session = Depends(get_db)):
-    token = await create_access_token(request, db)
+async def login(request: Request = None, db: Session = Depends(get_db), token: str = Depends(create_access_token)):
     response = JSONResponse({"access_token": token, "token_type": "bearer"})
 
     response.set_cookie(

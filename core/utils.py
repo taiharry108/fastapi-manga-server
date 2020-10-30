@@ -14,9 +14,5 @@ def enter_session(func):
     return wrapped
 
 
-async def is_test() -> bool:
-    return False
-
-
 async def get_manga_site_common(site: MangaSiteEnum) -> MangaSite:
     return get_manga_site(site)

@@ -1,5 +1,7 @@
+from database.utils import get_db
 from typing import Dict
 from datetime import timedelta, datetime
+from fastapi.param_functions import Depends
 
 from starlette.requests import Request
 from starlette.config import Config
@@ -63,7 +65,7 @@ def get_email(idinfo: Dict[str, str]) -> str:
             status_code=400, detail="Unable to validate social login")
 
 
-async def create_access_token(request: Request, db: Session) -> str:
+async def create_access_token(request: Request, db: Session = Depends(get_db)) -> str:
     check_header(request)
     body_bytes = await request.body()
     auth_code = jsonable_encoder(body_bytes)
