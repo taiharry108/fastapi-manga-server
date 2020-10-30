@@ -5,14 +5,14 @@ from core.downloader import Downloader
 import pytest
 import asyncio
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def event_loop():
     loop = asyncio.get_event_loop()
     yield loop
     loop.close()
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='package')
 async def downloader() -> Downloader:
     print('getting downloader here')
     downloader = DownloaderFactory.get_downloader("test")

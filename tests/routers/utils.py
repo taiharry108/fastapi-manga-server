@@ -34,10 +34,6 @@ def override_get_db():
         db.close()
 
 
-def override_is_test() -> bool:
-    return True
-
-
 async def override_get_manga_site_common(site: MangaSiteEnum) -> MangaSite:
     manga_site = get_manga_site(site)
     manga_site.downloader.download_dir = Path('./static/test_images')

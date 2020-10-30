@@ -1,7 +1,7 @@
 from httpx import AsyncClient, Limits
 SIZE_POOL_HTTPX = 5
 
-limits = Limits(max_connections=5, max_keepalive_connections=5)
+limits = Limits(max_connections=20, max_keepalive_connections=20)
 
 class SingletonHttpx(object):
     client: AsyncClient = None
