@@ -121,6 +121,11 @@ async def delete_all_pages(db: Session = Depends(get_db)):
     db.commit()
     return True
 
+@router.post('/create_site')
+async def create_site(db: Session = Depends(get_db)):
+    manga_site_crud.create_manga_site(db, MangaSiteEnum.CopyManga)
+    return True
+
 
 @router.get('/test')
 async def test(db: Session = Depends(get_db)):

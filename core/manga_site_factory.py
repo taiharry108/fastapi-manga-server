@@ -20,6 +20,9 @@ def get_manga_site(manga_site_enum: MangaSiteEnum) -> MangaSite:
     elif manga_site_enum == MangaSiteEnum.ComicBus:
         from .comicbus import ComicBus
         return ComicBus()
+    elif manga_site_enum == MangaSiteEnum.CopyManga:
+        from .copymanga import CopyManga
+        return CopyManga()
     return ManHuaRen()
 
 
